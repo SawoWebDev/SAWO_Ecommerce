@@ -1,7 +1,12 @@
 // src/lib/products.ts
-// Own product data functions for the ecommerce storefront. Queries the same
-// `products` table REACT_SITE reads (see its src/local-storage/supabaseReader.js
-// and visibility.js), reimplemented independently here for Astro.
+// Own product data functions for the ecommerce storefront. Queries
+// `product_display` — a view (see supabase/migrations/0001_product_commerce.sql)
+// that joins the same `products` table REACT_SITE reads with the
+// ecommerce-only `product_commerce` table, and applies the same visibility
+// rule REACT_SITE's local-storage/visibility.js enforces client-side
+// (is_deleted false, visible true, published or publish_at already past) —
+// server-side, in the view's WHERE clause, so it doesn't need reimplementing
+// here.
 import { getSupabase } from "./supabase";
 
 export interface Product {
@@ -15,28 +20,26 @@ export interface Product {
   tags: string[] | null;
   features: string[] | null;
   brand: string | null;
-  status: string | null;
-  visible: boolean | null;
-  publish_at: string | null;
   featured: boolean | null;
   sort_order: number | null;
-  is_deleted: boolean | null;
+  // Ecommerce fields, from product_commerce via the product_display view.
+  // Null when no product_commerce row exists yet (not priced by the ecom
+  // CMS yet) — callers should treat that as "not orderable", not as zero.
+  sku: string | null;
+  price: number | null;
+  compare_at_price: number | null;
+  currency: string | null;
+  stock_status: "in_stock" | "out_of_stock" | "preorder" | "backorder" | null;
+  in_stock: boolean | null;
+  is_low_stock: boolean | null;
+  is_purchasable: boolean | null;
+  rating_average: number | null;
+  rating_count: number | null;
 }
 
 const LISTING_COLUMNS =
-  "id,name,slug,short_description,thumbnail,images,categories,tags,features,brand,status,visible,publish_at,featured,sort_order,is_deleted";
-
-// A product is visible to shoppers when it isn't soft-deleted, hasn't been
-// hidden, and is either explicitly published or has a publish_at in the past.
-// Mirrors REACT_SITE's local-storage/visibility.js isPubliclyVisible().
-export function isPubliclyVisible(product: Product, now: number = Date.now()): boolean {
-  if (!product) return false;
-  if (product.is_deleted) return false;
-  if (product.visible === false) return false;
-  if (product.status === "published") return true;
-  if (product.publish_at && new Date(product.publish_at).getTime() <= now) return true;
-  return false;
-}
+  "id,name,slug,short_description,thumbnail,images,categories,tags,features,brand,featured,sort_order," +
+  "sku,price,compare_at_price,currency,stock_status,in_stock,is_low_stock,is_purchasable,rating_average,rating_count";
 
 // Accessory-only scope for this storefront: heaters, steam, sauna rooms,
 // infrared, and controls are excluded. Group definitions (category + tag
@@ -81,8 +84,7 @@ function isAccessoryProduct(product: Product): boolean {
   return getAccessoryGroupsForProduct(product).length > 0;
 }
 
-// Featured items first, then CMS sort_order, then newest-defined name order
-// as a stable tiebreaker.
+// Featured items first, then CMS sort_order, then name as a stable tiebreaker.
 function byFeaturedThenSortOrder(a: Product, b: Product): number {
   const fa = a.featured ? 0 : 1;
   const fb = b.featured ? 0 : 1;
@@ -95,9 +97,8 @@ function byFeaturedThenSortOrder(a: Product, b: Product): number {
 
 export async function getVisibleProducts(runtimeEnv?: Partial<CloudflareEnv>): Promise<Product[]> {
   const { data, error } = await getSupabase(runtimeEnv)
-    .from("products")
+    .from("product_display")
     .select(LISTING_COLUMNS)
-    .eq("visible", true)
     .order("sort_order", { ascending: true });
 
   if (error) {
@@ -106,7 +107,7 @@ export async function getVisibleProducts(runtimeEnv?: Partial<CloudflareEnv>): P
   }
 
   return ((data as unknown as Product[]) || [])
-    .filter((p) => isPubliclyVisible(p) && isAccessoryProduct(p))
+    .filter(isAccessoryProduct)
     .sort(byFeaturedThenSortOrder);
 }
 

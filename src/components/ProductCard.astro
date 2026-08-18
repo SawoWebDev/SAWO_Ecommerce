@@ -16,6 +16,33 @@ function stripHtml(html: string | null): string {
 
 const excerpt = stripHtml(product.short_description);
 const category = product.categories?.[0] ?? product.brand ?? null;
+
+const hasPrice = product.price !== null && product.price > 0;
+const hasDiscount = hasPrice && product.compare_at_price !== null && product.compare_at_price! > product.price!;
+
+const currencyFormatter = new Intl.NumberFormat("en-PH", {
+  style: "currency",
+  currency: product.currency || "PHP",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
+const STOCK_BADGES: Record<string, { label: string; className: string }> = {
+  out_of_stock: { label: "Out of Stock", className: "stock-out" },
+  preorder: { label: "Preorder", className: "stock-preorder" },
+  backorder: { label: "Backorder", className: "stock-preorder" },
+};
+// "Low stock" takes priority over a plain in-stock status when both are
+// true; a plain in-stock product gets no badge at all (the default,
+// unremarkable state doesn't need clutter).
+const stockBadge = product.is_low_stock
+  ? { label: "Low Stock", className: "stock-low" }
+  : product.stock_status
+    ? STOCK_BADGES[product.stock_status]
+    : null;
+
+const hasRating = product.rating_average !== null && product.rating_average! > 0;
+const filledStars = hasRating ? Math.round(product.rating_average! * 2) / 2 : 0;
 ---
 <article class="product-card">
   <div class="product-image">
@@ -26,14 +53,40 @@ const category = product.categories?.[0] ?? product.brand ?? null;
         <i class="fa-regular fa-image"></i>
       </div>
     )}
-    {product.featured && <span class="badge">Featured</span>}
+    <div class="image-badges">
+      {product.featured && <span class="badge badge-featured">Featured</span>}
+      {stockBadge && <span class={`badge ${stockBadge.className}`}>{stockBadge.label}</span>}
+    </div>
   </div>
 
   <div class="product-body">
     {category && <span class="product-category">{category}</span>}
     <h3 class="product-name">{product.name}</h3>
+
+    {hasRating && (
+      <div class="product-rating" aria-label={`Rated ${product.rating_average} out of 5`}>
+        <span class="stars">
+          {Array.from({ length: 5 }).map((_, i) => {
+            const diff = filledStars - i;
+            const icon = diff >= 1 ? "fa-solid fa-star" : diff >= 0.5 ? "fa-solid fa-star-half-stroke" : "fa-regular fa-star";
+            return <i class={icon}></i>;
+          })}
+        </span>
+        {product.rating_count! > 0 && <span class="rating-count">({product.rating_count})</span>}
+      </div>
+    )}
+
     {excerpt && <p class="product-excerpt">{excerpt}</p>}
-    <button class="product-cta" type="button">View Details</button>
+
+    <div class="product-footer">
+      {hasPrice ? (
+        <div class="product-price">
+          {hasDiscount && <span class="price-compare">{currencyFormatter.format(product.compare_at_price!)}</span>}
+          <span class="price-current">{currencyFormatter.format(product.price!)}</span>
+        </div>
+      ) : <span class="price-unavailable">Price on request</span>}
+      <button class="product-cta" type="button">View Details</button>
+    </div>
   </div>
 </article>
 
@@ -71,19 +124,29 @@ const category = product.categories?.[0] ?? product.brand ?? null;
     color: var(--brown-light);
     font-size: 2.5rem;
   }
-  .badge {
+
+  .image-badges {
     position: absolute;
     top: 12px;
     left: 12px;
-    background: var(--brown-text);
-    color: #fff;
+    right: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .badge {
     font-size: .65rem;
     font-weight: 700;
     letter-spacing: .04em;
     text-transform: uppercase;
     padding: 4px 10px;
     border-radius: 100px;
+    color: #fff;
   }
+  .badge-featured { background: var(--brown-text); }
+  .stock-out { background: #B5502E; }
+  .stock-low { background: #C9861D; }
+  .stock-preorder { background: #5C7A52; }
 
   .product-body {
     padding: 16px 18px 18px;
@@ -105,6 +168,15 @@ const category = product.categories?.[0] ?? product.brand ?? null;
     font-weight: 600;
     color: var(--ink);
   }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .product-rating .stars { color: #D9A441; font-size: .78rem; letter-spacing: 1px; }
+  .product-rating .rating-count { font-size: .72rem; color: var(--ink-faint); }
+
   .product-excerpt {
     margin: 0;
     font-size: .82rem;
@@ -115,18 +187,35 @@ const category = product.categories?.[0] ?? product.brand ?? null;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
-  .product-cta {
+
+  .product-footer {
     margin-top: auto;
     padding-top: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .product-price { display: flex; align-items: baseline; gap: 8px; }
+  .price-current { font-size: 1rem; font-weight: 700; color: var(--ink); }
+  .price-compare {
+    font-size: .8rem;
+    color: var(--ink-faint);
+    text-decoration: line-through;
+  }
+  .price-unavailable { font-size: .8rem; color: var(--ink-faint); font-style: italic; }
+
+  .product-cta {
     border: none;
     background: none;
     color: var(--brown-deep);
     font-size: .8rem;
     font-weight: 700;
-    text-align: left;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex-shrink: 0;
   }
   .product-cta::after {
     content: "\2192";
