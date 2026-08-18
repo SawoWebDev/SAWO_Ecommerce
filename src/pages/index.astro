@@ -8,414 +8,329 @@ import { getVisibleProducts, getAccessoryGroupLabels, getAccessoryGroupsForProdu
 const products = await getVisibleProducts(Astro.locals.runtime?.env);
 const groupLabels = getAccessoryGroupLabels(products);
 
-function stripHtml(html: string | null): string {
-  if (!html) return "";
-  return html.replace(/<[^>]*>/g, " ");
+function slugify(label: string): string {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-function searchText(product: (typeof products)[number]): string {
-  return [product.name, stripHtml(product.short_description), ...(product.tags || [])]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-}
-
-// Hero + category tile grid ported from the real, live "Sauna Accessories"
-// landing page (frontend-next's /sauna/accessories route — see its built
-// output for the reference markup/copy this section matches). Images stay
-// on the main site's CDN (www.sawo.com/assets/...) since this storefront
-// doesn't have local copies. Tile `category` values must match the labels
-// ACCESSORY_GROUPS produces in products.ts so clicking one can drive the
-// existing chip filter below instead of duplicating filter logic.
-const CATEGORY_TILES = [
-  {
-    category: "Accessory Sets",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/Signature-D-v4-scaled.webp",
-    title: "Accessory Sets",
-    copy: "Our carefully curated accessory sets offer something for everyone. From natural, zero-waste options to bold & sophisticated designs, the sets enhance your sauna enjoyment in every possible way.",
-  },
-  {
-    category: "Pails & Ladles",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/DRAGON-FIRE-PAIL-AND-LADDLE-SCENE-600x600-1.webp",
-    title: "Pails & Ladles",
-    copy: "Essential to Finnish saunas, our SAWO selection offers pails ranging from 2 to 40 liters. Choose from traditional cedar, aspen, & pine or modern stainless steel options. Complete your set with ladles.",
-  },
-  {
-    category: "Thermometers & Combined Meters",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/BoxType2-copy-new.webp",
-    title: "Thermometers & Combined Meters",
-    copy: "Traditional thermometers & hygrometers signal sauna readiness. Explore diverse shapes & styles, and try our 15-minute sand timers for socializing or newcomers.",
-  },
-  {
-    category: "Clocks & Timers",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/sand-timer-copy-new.webp",
-    title: "Clocks & Sandtimers",
-    copy: "Want to see who lasts the longest in sauna? Our 15min sand timers are a great way to create conversation or perfect for those who are new to Finnish sauna.",
-  },
-  {
-    category: "Sauna Lights",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/TR-LIGHT-COVER_SCENE1-copy.webp",
-    title: "Sauna Lights & Covers",
-    copy: "Create the perfect ambience with a proper play of lighting. Our different light shades allow you to create the feel of soothing & warm.",
-  },
-  {
-    category: "Headrest & Backrests",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/506-2-D.webp",
-    title: "Headrests & Backrests",
-    copy: "Wooden headrests & backrests, along with lounge backrests made from durable materials like wood, memory foam, or fabric, offer comfort with moisture-resistant upholstery for durability.",
-  },
-  {
-    category: "Doors & Handles",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/DOORS-AND-HANDLES-copy.webp",
-    title: "Doors & Handles",
-    copy: "Elevate your sauna with SAWO's sauna doors. Crafted for durability, they feature rubber lining, magnetic lock, stainless hinges, & laminated jambs. Choose from glass options for a light-filled, spacious feel.",
-  },
-  {
-    category: "Benches, Hangers & Floor Mats",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/siro-bench.webp",
-    title: "Benches & Floor Tiles",
-    copy: "Upgrade your sauna experience with comfy, stylish benches that support & enhance relaxation. Choose from various high-quality designs to suit your taste & space.",
-  },
-  {
-    category: "Kivistone",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/R-500-D_Scene2.webp",
-    title: "Kivistone",
-    copy: "Kivistone offers a variety of unique soapstone products for homes, gifts, & corporate use, featuring a wide range of innovative designs.",
-  },
-  {
-    category: "Ventilations & Miscellaneous Items",
-    image: "https://www.sawo.com/assets/Sauna/Accessories/Ventilation.webp",
-    title: "Ventilations & Add-Ons",
-    copy: "Round out your sauna experience with our range of ventilations & essential items. Elevate your time in the sauna with SAWO's complimentary items.",
-  },
-].filter((tile) => groupLabels.includes(tile.category));
+// One section per accessory group, in the same order ACCESSORY_GROUPS
+// defines them (products.ts) — mirrors accessories.html's per-category
+// <section> layout, but built from the live Supabase catalog instead of
+// the static allaccs-data.js that mockup read from.
+const categorySections = groupLabels.map((label) => ({
+  label,
+  slug: slugify(label),
+  items: products.filter((p) => getAccessoryGroupsForProduct(p).includes(label)),
+}));
 ---
 <Layout>
   <Header />
 
-  <section class="sa-hero">
-    <img
-      src="https://www.sawo.com/assets/Sauna/Accessories/Signature-BL-v2-1-scaled.webp"
-      alt="Sauna Accessories"
-      class="sa-hero-bg"
-      loading="eager"
-    />
-    <div class="sa-hero-overlay"></div>
-    <div class="wrap sa-hero-content">
-      <h1 class="sa-hero-title">SAUNA ACCESSORIES</h1>
-      <p class="sa-hero-subtitle">Discover the Perfect Sauna Accessories</p>
+  <div class="wrap page-head">
+    <div class="breadcrumb">
+      <a href="/">Home</a><i class="fa-solid fa-chevron-right"></i>Sauna Accessories
     </div>
-    <svg class="sa-hero-waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-      <defs>
-        <path id="hero-gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path>
-      </defs>
-      <use href="#hero-gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.4)"></use>
-      <use href="#hero-gentle-wave" x="48" y="7" fill="#fff"></use>
-    </svg>
-  </section>
+    <h1 class="site-heading">Sauna Accessories</h1>
+    <p>Pails, ladles, lighting, doors, benches and every finishing touch for a genuine Finnish sauna — matched by wood finish and fit-checked against the SAWO range you already own.</p>
+  </div>
 
-  {CATEGORY_TILES.length > 0 && (
-    <section class="sa-tiles">
-      <div class="wrap">
-        <h2 class="sa-tiles-title">Discover the Perfect Sauna Accessories</h2>
-        <div class="sa-tile-grid">
-          {CATEGORY_TILES.map((tile) => (
-            <button type="button" class="sa-tile" data-jump-category={tile.category}>
-              <img src={tile.image} alt={tile.title} loading="lazy" />
-              <h3>{tile.title}</h3>
-              <p>{tile.copy}</p>
-            </button>
-          ))}
+  <div class="wrap layout">
+    <!-- ============ SIDEBAR ============ -->
+    <aside>
+      <div class="concierge">
+        <h4>Need a Hand?</h4>
+        <p>Not sure which finish or size fits your sauna? Our accessories team can match it in minutes.</p>
+        <div class="concierge-links">
+          <a href="https://www.sawo.com/contact"><i class="fa-solid fa-headset"></i> Talk to an Accessories Specialist <i class="fa-solid fa-chevron-right"></i></a>
+          <a href="https://www.sawo.com/contact"><i class="fa-solid fa-magnifying-glass"></i> Find My Compatible Part <i class="fa-solid fa-chevron-right"></i></a>
+          <a href="https://www.sawo.com/support/faq"><i class="fa-solid fa-shield-halved"></i> Warranty &amp; Returns <i class="fa-solid fa-chevron-right"></i></a>
+          <a href="https://www.sawo.com/support/manuals"><i class="fa-solid fa-book"></i> Installation Guides <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+        <div class="concierge-trust">
+          <div class="stars">★★★★★</div>
+          <p><strong>4.9 out of 5</strong> · based on 2,480 verified reviews</p>
+          <a class="btn-block-outline" href="https://www.sawo.com/support/faq">Read Reviews</a>
         </div>
       </div>
-    </section>
-  )}
 
-  <section class="catalog" id="catalog">
-    <div class="wrap">
-      <div class="catalog-toolbar">
-        <div class="search-shell">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="search" id="product-search" placeholder="Search accessories" aria-label="Search accessories" />
-        </div>
-
-        {groupLabels.length > 0 && (
-          <div class="category-filters" role="tablist" aria-label="Filter by category">
-            <button class="chip is-active" data-category="">All</button>
-            {groupLabels.map((label) => (
-              <button class="chip" data-category={label}>{label}</button>
+      <div class="filters">
+        <details class="filter-group" open>
+          <summary>Shop by Category <i class="fa-solid fa-chevron-down"></i></summary>
+          <div class="filter-body" id="catFilterList">
+            {categorySections.map((section) => (
+              <a class="cat-link" href={`#${section.slug}`} data-key={section.slug}>
+                <span>{section.label}</span><span class="count">{section.items.length}</span>
+              </a>
             ))}
           </div>
-        )}
+        </details>
+
+        <details class="filter-group">
+          <summary>Wood Finish <i class="fa-solid fa-chevron-down"></i></summary>
+          <div class="filter-body">
+            <label class="filter-check"><input type="checkbox" /> Cedar</label>
+            <label class="filter-check"><input type="checkbox" /> Aspen</label>
+            <label class="filter-check"><input type="checkbox" /> Hemlock</label>
+            <label class="filter-check"><input type="checkbox" /> Black</label>
+            <label class="filter-check"><input type="checkbox" /> White</label>
+          </div>
+        </details>
+      </div>
+    </aside>
+
+    <!-- ============ MAIN ============ -->
+    <div>
+      <div class="results-bar">
+        <span class="results-count"><strong>{products.length}</strong> products across <strong>{categorySections.length}</strong> categories</span>
+        <div class="sort-select">
+          Sort
+          <select>
+            <option>Recommended</option>
+            <option>Newest</option>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+            <option>Best Rated</option>
+          </select>
+        </div>
       </div>
 
-      {products.length > 0 ? (
-        <div class="product-grid" id="product-grid">
-          {products.map((product) => (
-            <div
-              class="product-grid-item"
-              data-categories={JSON.stringify(getAccessoryGroupsForProduct(product))}
-              data-search={searchText(product)}
-            >
-              <ProductCard product={product} />
+      {categorySections.length > 0 ? (
+        categorySections.map((section) => (
+          <section class="cat-section" id={section.slug}>
+            <div class="cat-section-head">
+              <h2 class="site-heading">{section.label}</h2>
+              <span class="count">{section.items.length} item{section.items.length === 1 ? "" : "s"}</span>
             </div>
-          ))}
-        </div>
+            <div class="product-grid">
+              {section.items.map((product) => <ProductCard product={product} />)}
+            </div>
+          </section>
+        ))
       ) : (
         <p class="empty-state">No accessories available right now &mdash; check back soon.</p>
       )}
+    </div>
+  </div>
 
-      <p class="no-results" id="no-results" hidden>No accessories match your search.</p>
+  <!-- ============ SEO CONTENT ============ -->
+  <section class="seo-content">
+    <div class="wrap inner">
+      <h2 class="site-heading">Finishing a Sauna the Right Way</h2>
+      <div class="col-text">
+        <p>The accessories around a sauna heater are what turn a hot room into an authentic Finnish sauna experience — the pail and ladle for löyly, the backrest that makes a long session comfortable, the lighting that sets the mood. Every accessory here is listed with its real size, capacity and wood finish, so you can match it to the rest of your cabin without guesswork.</p>
+        <p>Wood finish matters as much as fit. Cedar, Aspen and Hemlock each weather differently in high heat and humidity, and mixing finishes unintentionally is the most common regret we hear from customers finishing a build. If you're matching an existing SAWO room, the finish codes on this page mirror the ones used across our heaters and panelling.</p>
+        <p>We stock both premium wooden pieces and stainless-steel or metal alternatives, so you can choose based on maintenance and budget without compromising on durability. Every listing includes its product code, so you can cross-reference before you order rather than after.</p>
+      </div>
     </div>
   </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="eyebrow">Common Questions</span>
+        <h2 class="site-heading">Frequently Asked Questions</h2>
+      </div>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>How do I match the wood finish to my existing sauna? <i class="fa-solid fa-plus"></i></summary>
+          <p class="faq-answer">Check the finish code on your heater or panelling data plate — Cedar, Aspen and Hemlock are used consistently across our pails, ladles, backrests and doors, so matching the code keeps everything visually consistent.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I mix wood finishes in one sauna? <i class="fa-solid fa-plus"></i></summary>
+          <p class="faq-answer">You can, and many customers do for contrast pieces like a Black ladle against Cedar panelling — it's a style choice, not a fit issue, since all finishes are dimensionally identical within a product line.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Are the doors pre-hung or slab only? <i class="fa-solid fa-plus"></i></summary>
+          <p class="faq-answer">Each door listing shows both its opening size and frame size — order against your rough opening, and confirm with our team if you're retrofitting into an existing frame.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How long do wooden accessories last in a sauna? <i class="fa-solid fa-plus"></i></summary>
+          <p class="faq-answer">With regular use and occasional oiling, most wooden pieces last many years. High humidity and mineral buildup from löyly water can dull the finish over time, so periodic light sanding and re-oiling keeps them looking new.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Do you offer a warranty on accessories? <i class="fa-solid fa-plus"></i></summary>
+          <p class="faq-answer">Yes, every accessory sold through SAWO carries a minimum 12-month warranty against manufacturing defects.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I return an accessory if the finish doesn't match? <i class="fa-solid fa-plus"></i></summary>
+          <p class="faq-answer">Unused items in original packaging can be returned within 30 days. We'd recommend confirming your finish code with our support team before ordering to avoid the round trip entirely.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA BAND ============ -->
+  <div class="cta-band">
+    <div class="cta-copy">
+      <h2>Need help finishing your sauna?</h2>
+      <p>Send us your heater or room model and we'll confirm the matching accessories before you order.</p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn btn-cream" href="https://www.sawo.com/contact">Contact Support</a>
+      <a class="btn btn-ghost-light" href="https://www.sawo.com/sauna">Find Your Sauna Model</a>
+    </div>
+  </div>
 
   <Footer />
 </Layout>
 
 <script>
-  // Client-side search + category filter — no framework needed for a
-  // simple show/hide over server-rendered cards.
-  const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
-  const items = document.querySelectorAll<HTMLElement>(".product-grid-item");
-  const searchInput = document.getElementById("product-search") as HTMLInputElement | null;
-  const noResults = document.getElementById("no-results");
-
-  let activeCategory = "";
-
-  function applyFilters() {
-    const query = (searchInput?.value || "").trim().toLowerCase();
-    let visibleCount = 0;
-
-    items.forEach((item) => {
-      const cats: string[] = JSON.parse(item.dataset.categories || "[]");
-      const matchesCategory = !activeCategory || cats.includes(activeCategory);
-      const matchesSearch = !query || (item.dataset.search || "").includes(query);
-      const show = matchesCategory && matchesSearch;
-      item.style.display = show ? "" : "none";
-      if (show) visibleCount += 1;
+  // Sidebar "Shop by Category" active-link highlight — mirrors
+  // accessories.html's IntersectionObserver exactly (same rootMargin), just
+  // pointed at server-rendered sections instead of client-built ones.
+  const links = [...document.querySelectorAll<HTMLAnchorElement>(".cat-link")];
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      links.forEach((l) => l.classList.toggle("active", l.getAttribute("href") === `#${entry.target.id}`));
     });
-
-    if (noResults) noResults.hidden = visibleCount > 0;
-  }
-
-  chips.forEach((chip) => {
-    chip.addEventListener("click", () => {
-      chips.forEach((c) => c.classList.remove("is-active"));
-      chip.classList.add("is-active");
-      activeCategory = chip.dataset.category || "";
-      applyFilters();
-    });
-  });
-
-  searchInput?.addEventListener("input", applyFilters);
-
-  // Category tiles (hero section) drive the same chip filter below instead
-  // of duplicating the filtering logic — click finds the matching chip by
-  // its data-category, fires its own click handler, then scrolls the
-  // filtered grid into view.
-  const tiles = document.querySelectorAll<HTMLButtonElement>(".sa-tile");
-  tiles.forEach((tile) => {
-    tile.addEventListener("click", () => {
-      const category = tile.dataset.jumpCategory || "";
-      const matchingChip = Array.from(chips).find((c) => c.dataset.category === category);
-      matchingChip?.click();
-      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
+  }, { rootMargin: "-90px 0px -70% 0px" });
+  document.querySelectorAll(".cat-section").forEach((s) => io.observe(s));
 </script>
 
 <style>
-  /* Hero — ported from the real /sauna/accessories page (frontend-next):
-     full-bleed photo, dark scrim, centered white title/subtitle, wave
-     divider at the base. */
-  .sa-hero {
-    position: relative;
-    min-height: 70vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    overflow: hidden;
-    background: #241c17;
+  /* ============ BREADCRUMB + PAGE HEAD ============ */
+  .page-head { padding: 30px 0 8px; }
+  .breadcrumb { font-size: .78rem; color: var(--ink-faint); margin-bottom: 14px; }
+  .breadcrumb a { color: var(--ink-faint); }
+  .breadcrumb a:hover { color: var(--brown-text); }
+  .breadcrumb i { font-size: .6rem; margin: 0 8px; }
+  .page-head h1 { margin: 0 0 10px; font-size: 2.4rem; }
+  .page-head p { font-size: .94rem; color: var(--ink-soft); max-width: 760px; margin: 0; }
+
+  /* ============ LAYOUT ============ */
+  .layout { display: grid; grid-template-columns: 270px 1fr; gap: 36px; padding: 32px 0 40px; align-items: start; }
+  .layout aside { position: sticky; top: 20px; }
+
+  /* ---- Sidebar ---- */
+  .concierge {
+    background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md);
+    padding: 22px 20px; box-shadow: var(--shadow-sm); margin-bottom: 22px;
   }
-  .sa-hero-bg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
+  .concierge h4 { font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--brown-text); margin: 0 0 4px; }
+  .concierge > p { font-size: .78rem; color: var(--ink-soft); margin: 0 0 16px; line-height: 1.5; }
+  .concierge-links { display: flex; flex-direction: column; gap: 2px; margin-bottom: 16px; }
+  .concierge-links a {
+    display: flex; align-items: center; gap: 11px; padding: 10px 8px; border-radius: var(--radius-sm); font-size: .8rem;
+    font-weight: 600; color: var(--brown-text); transition: background .2s ease;
   }
-  .sa-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, .38);
+  .concierge-links a:hover { background: var(--bg-alt); }
+  .concierge-links a i:first-child {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--brown-text) 0%, var(--brown-light) 100%); color: #fff;
+    box-shadow: 0 4px 10px rgba(139,94,60,.35);
+    display: flex; align-items: center; justify-content: center; font-size: .72rem; flex-shrink: 0;
   }
-  .sa-hero-content { position: relative; z-index: 1; padding: 60px 32px; }
-  .sa-hero-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 45px;
-    line-height: 52px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
+  .concierge-links a i:last-child { margin-left: auto; font-size: .65rem; color: var(--ink-faint); }
+  .concierge-trust { border-top: 1px solid var(--border-soft); padding-top: 16px; text-align: center; }
+  .concierge-trust .stars { color: var(--star); font-size: .8rem; margin-bottom: 4px; }
+  .concierge-trust p { font-size: .72rem; color: var(--ink-soft); margin: 0 0 12px; }
+  .concierge-trust p strong { color: var(--brown-text); }
+  .btn-block-outline {
+    display: block; width: 100%; text-align: center; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+    font-size: .76rem; font-weight: 700; color: var(--brown-deep);
   }
-  .sa-hero-subtitle {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 22px;
-    line-height: 38px;
-    font-weight: 400;
-    color: #fff;
-    margin: 12px 0 0;
+  .btn-block-outline:hover { border-color: var(--brown-text); background: var(--bg-alt); }
+
+  .filters { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-md); overflow: hidden; }
+  .filter-group { border-bottom: 1px solid var(--border-soft); }
+  .filter-group:last-child { border-bottom: none; }
+  .filter-group summary {
+    list-style: none; display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+    padding: 16px 18px; font-size: .76rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--brown-text);
   }
-  .sa-hero-waves {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: auto;
-    z-index: 1;
+  .filter-group summary::-webkit-details-marker { display: none; }
+  .filter-group summary i { font-size: .65rem; color: var(--ink-faint); transition: transform .2s ease; }
+  .filter-group[open] summary i { transform: rotate(180deg); }
+  .filter-body { padding: 2px 10px 14px; display: flex; flex-direction: column; gap: 2px; max-height: 340px; overflow-y: auto; }
+  .cat-link {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 8px; border-radius: var(--radius-sm);
+    font-size: .8rem; font-weight: 600; color: var(--text-brown); transition: background .2s ease, color .2s ease;
+  }
+  .cat-link:hover { background: var(--bg-alt); color: var(--brown-text); }
+  .cat-link.active { background: var(--brown-text); color: #fff; }
+  .cat-link .count { font-size: .7rem; color: var(--ink-faint); font-weight: 700; }
+  .cat-link.active .count { color: rgba(255,255,255,.75); }
+  .filter-check { display: flex; align-items: center; gap: 9px; font-size: .82rem; color: var(--text-brown); cursor: pointer; padding: 6px 8px; }
+  .filter-check input { accent-color: var(--brown-text); width: 15px; height: 15px; }
+
+  /* ---- Main column ---- */
+  .results-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+  .results-count { font-size: .85rem; color: var(--ink-soft); font-weight: 600; }
+  .results-count strong { color: var(--brown-text); }
+  .sort-select { display: flex; align-items: center; gap: 8px; font-size: .8rem; font-weight: 600; color: var(--brown-deep); }
+  .sort-select select {
+    border: 1px solid var(--border); border-radius: 100px; padding: 9px 30px 9px 15px;
+    background: var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B5E3C'/%3E%3C/svg%3E") no-repeat right 14px center;
+    appearance: none; font-weight: 600; font-size: .8rem; color: var(--brown-text); font-family: inherit;
+  }
+
+  /* ---- Category sections ---- */
+  .cat-section { padding: 36px 0 6px; scroll-margin-top: 20px; }
+  .cat-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+  .cat-section-head h2 { font-size: 1.5rem; }
+  .cat-section-head .count { font-size: .78rem; font-weight: 700; color: var(--ink-faint); }
+
+  .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .empty-state { text-align: center; color: var(--ink-soft); padding: 60px 0; }
+
+  /* ============ SEO CONTENT ============ */
+  .seo-content { padding: 56px 0; background: var(--bg-alt); border-top: 1px solid var(--border-soft); border-bottom: 1px solid var(--border-soft); margin-top: 20px; }
+  .seo-content .inner { max-width: none; }
+  .seo-content h2 { margin: 0 0 22px; }
+  .seo-content .col-text { column-count: 2; column-gap: 56px; }
+  .seo-content .col-text p { break-inside: avoid; font-size: .95rem; color: var(--ink-soft); margin: 0 0 18px; line-height: 1.75; }
+
+  /* ============ FAQ ============ */
+  .faq { padding: 60px 0 70px; }
+  .faq .section-head { text-align: center; margin: 0 0 36px; }
+  .faq .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px; font-size: .72rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--brown-text);
+  }
+  .faq .eyebrow::before { content: ''; width: 18px; height: 2px; background: var(--brown-light); display: inline-block; }
+  .faq h2 { margin: 12px auto 0; text-align: center; }
+  .faq-list { max-width: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .faq-item { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 2px 20px; align-self: start; }
+  .faq-item summary {
+    list-style: none; display: flex; align-items: center; justify-content: space-between; padding: 17px 0; cursor: pointer;
+    font-size: .9rem; font-weight: 700; color: var(--brown-text);
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary i { color: var(--brown-text); font-size: .75rem; transition: transform .2s ease; flex-shrink: 0; margin-left: 16px; }
+  .faq-item[open] summary i { transform: rotate(45deg); }
+  .faq-item .faq-answer { font-size: .84rem; color: var(--ink-soft); line-height: 1.65; padding: 0 0 20px; margin: 0; }
+
+  /* ============ CTA BAND ============ */
+  .cta-band {
+    margin: 0 auto 70px; max-width: 1320px; width: calc(100% - 64px);
+    background: linear-gradient(135deg, #8b5e3c 0%, #a67853 100%);
+    border-radius: var(--radius-lg); padding: 48px 50px; display: flex; align-items: center; justify-content: space-between;
+    gap: 26px; flex-wrap: wrap; box-shadow: 0 20px 60px rgba(139,94,60,.35);
+  }
+  .cta-copy h2 { color: var(--cream, #fff8ec); font-size: 1.5rem; font-weight: 700; margin: 0 0 8px; max-width: 420px; }
+  .cta-copy p { color: rgba(255,248,236,.8); font-size: .88rem; margin: 0; max-width: 420px; }
+  .cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 24px; border-radius: 100px; font-weight: 700; font-size: .83rem; border: 2px solid transparent; transition: all .2s ease; }
+  .btn-cream { background: var(--cream, #fff8ec); color: var(--brown-text); border-color: var(--cream, #fff8ec); }
+  .btn-cream:hover { background: transparent; color: var(--cream, #fff8ec); border-color: var(--cream, #fff8ec); }
+  .btn-ghost-light { background: transparent; border-color: rgba(251,243,228,.4); color: var(--cream, #fff8ec); }
+  .btn-ghost-light:hover { background: rgba(251,243,228,.1); border-color: var(--cream, #fff8ec); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1200px) { .product-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 1080px) {
+    .layout { grid-template-columns: 1fr; }
+    .layout aside { position: static; }
+  }
+  @media (max-width: 900px) {
+    .faq-list { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 768px) {
-    .sa-hero-title { font-size: 28px; line-height: 36px; }
-    .sa-hero-subtitle { font-size: 16px; line-height: 28px; }
+    .cta-band { padding: 34px 24px; width: calc(100% - 40px); }
+    .page-head h1 { font-size: 1.8rem; }
+    .seo-content .col-text { column-count: 1; }
   }
-
-  /* Category tile grid — same card treatment as the reference's
-     .custom-product-grid .product. */
-  .sa-tiles { padding: 64px 0 20px; }
-  .sa-tiles-title {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 400;
-    color: var(--heading);
-    font-size: 2.1rem;
-    text-align: center;
-    margin: 0 0 8px;
-  }
-  .sa-tile-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
-    margin: 25px auto 0;
-  }
-  .sa-tile {
-    display: block;
-    text-align: left;
-    border: 1px solid var(--border-soft);
-    border-radius: var(--radius-md);
-    padding: 20px;
-    background: var(--surface);
-    transition: transform .3s ease, box-shadow .3s ease;
-    font-family: inherit;
-  }
-  .sa-tile:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 35px rgba(0,0,0,.12), 0 0 20px rgba(166,120,83,.15);
-  }
-  .sa-tile img {
-    width: 100%;
-    height: 230px;
-    object-fit: cover;
-    border-radius: 6px;
-    margin-bottom: 12px;
-    transition: transform .3s ease;
-  }
-  .sa-tile:hover img { transform: scale(1.05); }
-  .sa-tile h3 {
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin: 8px 0 6px;
-    color: var(--ink);
-    transition: color .3s ease;
-  }
-  .sa-tile:hover h3 { color: var(--brown-text); }
-  .sa-tile p {
-    font-size: .84rem;
-    color: var(--ink-soft);
-    line-height: 1.55;
-    margin: 0;
-  }
-  @media (max-width: 1024px) {
-    .sa-tile-grid { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 600px) {
-    .sa-tile-grid { grid-template-columns: 1fr; }
-  }
-
-  .catalog { padding: 40px 0 80px; }
-
-  .catalog-toolbar {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .search-shell {
-    display: flex;
-    align-items: center;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 0 16px;
-    height: 44px;
-    width: 100%;
-    max-width: 360px;
-  }
-  .search-shell i { color: var(--ink-faint); font-size: .82rem; margin-right: 10px; }
-  .search-shell input {
-    border: none;
-    background: transparent;
-    outline: none;
-    font-size: .85rem;
-    width: 100%;
-    color: var(--text-brown);
-    font-family: inherit;
-  }
-  .search-shell input::placeholder { color: var(--ink-faint); }
-
-  .category-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  .chip {
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-brown);
-    font-size: .78rem;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 100px;
-    transition: all .2s ease;
-  }
-  .chip:hover { border-color: var(--brown-text); }
-  .chip.is-active {
-    background: var(--brown-text);
-    border-color: var(--brown-text);
-    color: #fff;
-  }
-
-  .product-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-  }
-
-  .empty-state, .no-results {
-    text-align: center;
-    color: var(--ink-soft);
-    padding: 60px 0;
-  }
-
-  @media (max-width: 1080px) {
-    .product-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 780px) {
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  }
-  @media (max-width: 480px) {
-    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .sa-hero-content { padding: 40px 20px; }
-  }
+  @media (max-width: 480px) { .product-grid { grid-template-columns: 1fr; } }
 </style>
