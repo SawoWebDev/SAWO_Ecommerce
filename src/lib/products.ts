@@ -2,7 +2,7 @@
 // Own product data functions for the ecommerce storefront. Queries the same
 // `products` table REACT_SITE reads (see its src/local-storage/supabaseReader.js
 // and visibility.js), reimplemented independently here for Astro.
-import { supabase } from "./supabase";
+import { getSupabase } from "./supabase";
 
 export interface Product {
   id: string;
@@ -38,8 +38,8 @@ export function isPubliclyVisible(product: Product, now: number = Date.now()): b
   return false;
 }
 
-export async function getVisibleProducts(): Promise<Product[]> {
-  const { data, error } = await supabase
+export async function getVisibleProducts(runtimeEnv?: Partial<CloudflareEnv>): Promise<Product[]> {
+  const { data, error } = await getSupabase(runtimeEnv)
     .from("products")
     .select(LISTING_COLUMNS)
     .eq("visible", true)

@@ -5,7 +5,7 @@ import Footer from "../components/Footer.astro";
 import ProductCard from "../components/ProductCard.astro";
 import { getVisibleProducts, getCategories } from "../lib/products";
 
-const products = await getVisibleProducts();
+const products = await getVisibleProducts(Astro.locals.runtime?.env);
 const categories = getCategories(products);
 ---
 <Layout>
