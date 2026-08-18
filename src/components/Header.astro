@@ -1,0 +1,82 @@
+---
+// Own header for SAWO_ECOM. Structure (logo left, search + cart right)
+// is a simplified version of REACT_SITE's Header.jsx, recreated locally —
+// no shared component, no shared CSS.
+---
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a href="/" class="brand">
+      <img src="/logo.webp" alt="SAWO" width="120" height="76" />
+    </a>
+
+    <div class="header-actions">
+      <div class="search-shell">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" placeholder="Search products" aria-label="Search products" />
+      </div>
+      <button class="icon-btn" aria-label="Cart">
+        <i class="fa-solid fa-bag-shopping"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border-soft);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 14px 32px;
+  }
+  .brand img { height: 44px; width: auto; }
+  .header-actions { display: flex; align-items: center; gap: 12px; }
+
+  .search-shell {
+    display: flex;
+    align-items: center;
+    background: var(--bg-alt);
+    border-radius: 100px;
+    padding: 0 14px;
+    height: 40px;
+    width: 240px;
+  }
+  .search-shell i { color: var(--ink-faint); font-size: .8rem; margin-right: 8px; }
+  .search-shell input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: .85rem;
+    width: 100%;
+    color: var(--text-brown);
+    font-family: inherit;
+  }
+  .search-shell input::placeholder { color: var(--ink-faint); }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-alt);
+    border: none;
+    color: var(--brown-deep);
+    font-size: 1rem;
+    transition: background .2s ease;
+  }
+  .icon-btn:hover { background: var(--border); }
+
+  @media (max-width: 640px) {
+    .header-inner { padding: 12px 18px; flex-wrap: wrap; }
+    .search-shell { width: 100%; order: 3; }
+  }
+</style>

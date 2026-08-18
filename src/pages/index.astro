@@ -1,0 +1,145 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ProductCard from "../components/ProductCard.astro";
+import { getVisibleProducts, getCategories } from "../lib/products";
+
+const products = await getVisibleProducts();
+const categories = getCategories(products);
+---
+<Layout>
+  <Header />
+
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <span class="hero-eyebrow">SAWO Shop</span>
+      <h1 class="site-heading">Genuine Sauna &amp; Steam Gear</h1>
+      <p class="hero-copy">
+        Browse SAWO heaters, controls, generators, and accessories &mdash;
+        the same catalog trusted by sauna builders worldwide.
+      </p>
+    </div>
+  </section>
+
+  <section class="catalog">
+    <div class="wrap">
+      {categories.length > 0 && (
+        <div class="category-filters" role="tablist" aria-label="Filter by category">
+          <button class="chip is-active" data-category="">All</button>
+          {categories.map((cat) => (
+            <button class="chip" data-category={cat}>{cat}</button>
+          ))}
+        </div>
+      )}
+
+      {products.length > 0 ? (
+        <div class="product-grid" id="product-grid">
+          {products.map((product) => (
+            <div class="product-grid-item" data-categories={JSON.stringify(product.categories || [])}>
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="empty-state">No products available right now &mdash; check back soon.</p>
+      )}
+    </div>
+  </section>
+
+  <Footer />
+</Layout>
+
+<script>
+  // Client-side category filter — no framework needed for a simple show/hide.
+  const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
+  const items = document.querySelectorAll<HTMLElement>(".product-grid-item");
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      chips.forEach((c) => c.classList.remove("is-active"));
+      chip.classList.add("is-active");
+
+      const category = chip.dataset.category;
+      items.forEach((item) => {
+        if (!category) {
+          item.style.display = "";
+          return;
+        }
+        const cats: string[] = JSON.parse(item.dataset.categories || "[]");
+        item.style.display = cats.includes(category) ? "" : "none";
+      });
+    });
+  });
+</script>
+
+<style>
+  .hero {
+    background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
+    padding: 56px 0 40px;
+    text-align: center;
+  }
+  .hero-inner { max-width: 680px; margin: 0 auto; }
+  .hero-eyebrow {
+    display: inline-block;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--brown-text);
+    margin-bottom: 10px;
+  }
+  .hero-copy {
+    margin: 14px 0 0;
+    font-size: .98rem;
+    color: var(--ink-soft);
+  }
+
+  .catalog { padding: 40px 0 80px; }
+
+  .category-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .chip {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-brown);
+    font-size: .78rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 100px;
+    transition: all .2s ease;
+  }
+  .chip:hover { border-color: var(--brown-text); }
+  .chip.is-active {
+    background: var(--brown-text);
+    border-color: var(--brown-text);
+    color: #fff;
+  }
+
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 60px 0;
+  }
+
+  @media (max-width: 1080px) {
+    .product-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 780px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  }
+  @media (max-width: 480px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .hero { padding: 40px 0 28px; }
+  }
+</style>
