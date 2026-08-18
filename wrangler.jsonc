@@ -3,5 +3,13 @@
   "name": "sawo-ecom",
   "compatibility_date": "2026-08-01",
   "compatibility_flags": ["nodejs_compat"],
-  "pages_build_output_dir": "./dist"
+  "pages_build_output_dir": "./dist",
+  // Not secrets: PUBLIC_-prefixed Astro vars ship into the client bundle on
+  // every page load regardless of where they're stored, so there's nothing
+  // gained by keeping them out of the repo. Same project/key as REACT_SITE's
+  // anon key (RLS-protected, safe to expose).
+  "vars": {
+    "PUBLIC_SUPABASE_URL": "https://qsdfdfuooeythaioucpx.supabase.co",
+    "PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFzZGZkZnVvb2V5dGhhaW91Y3B4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NDgxMjIsImV4cCI6MjA5MDEyNDEyMn0.74TF_DPY89p31GonjX8KWO-4MockLoJ60hVo060QswQ"
+  }
 }
