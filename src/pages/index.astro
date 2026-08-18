@@ -3,10 +3,22 @@ import Layout from "../layouts/Layout.astro";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ProductCard from "../components/ProductCard.astro";
-import { getVisibleProducts, getCategories } from "../lib/products";
+import { getVisibleProducts, getAccessoryGroupLabels, getAccessoryGroupsForProduct } from "../lib/products";
 
 const products = await getVisibleProducts(Astro.locals.runtime?.env);
-const categories = getCategories(products);
+const groupLabels = getAccessoryGroupLabels(products);
+
+function stripHtml(html: string | null): string {
+  if (!html) return "";
+  return html.replace(/<[^>]*>/g, " ");
+}
+
+function searchText(product: (typeof products)[number]): string {
+  return [product.name, stripHtml(product.short_description), ...(product.tags || [])]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
 ---
 <Layout>
   <Header />
@@ -14,36 +26,49 @@ const categories = getCategories(products);
   <section class="hero">
     <div class="wrap hero-inner">
       <span class="hero-eyebrow">SAWO Shop</span>
-      <h1 class="site-heading">Genuine Sauna &amp; Steam Gear</h1>
+      <h1 class="site-heading">Sauna &amp; Steam Accessories</h1>
       <p class="hero-copy">
-        Browse SAWO heaters, controls, generators, and accessories &mdash;
-        the same catalog trusted by sauna builders worldwide.
+        Pails, ladles, thermometers, lights, and every other genuine SAWO
+        accessory &mdash; the same catalog trusted by sauna builders worldwide.
       </p>
     </div>
   </section>
 
   <section class="catalog">
     <div class="wrap">
-      {categories.length > 0 && (
-        <div class="category-filters" role="tablist" aria-label="Filter by category">
-          <button class="chip is-active" data-category="">All</button>
-          {categories.map((cat) => (
-            <button class="chip" data-category={cat}>{cat}</button>
-          ))}
+      <div class="catalog-toolbar">
+        <div class="search-shell">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="search" id="product-search" placeholder="Search accessories" aria-label="Search accessories" />
         </div>
-      )}
+
+        {groupLabels.length > 0 && (
+          <div class="category-filters" role="tablist" aria-label="Filter by category">
+            <button class="chip is-active" data-category="">All</button>
+            {groupLabels.map((label) => (
+              <button class="chip" data-category={label}>{label}</button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {products.length > 0 ? (
         <div class="product-grid" id="product-grid">
           {products.map((product) => (
-            <div class="product-grid-item" data-categories={JSON.stringify(product.categories || [])}>
+            <div
+              class="product-grid-item"
+              data-categories={JSON.stringify(getAccessoryGroupsForProduct(product))}
+              data-search={searchText(product)}
+            >
               <ProductCard product={product} />
             </div>
           ))}
         </div>
       ) : (
-        <p class="empty-state">No products available right now &mdash; check back soon.</p>
+        <p class="empty-state">No accessories available right now &mdash; check back soon.</p>
       )}
+
+      <p class="no-results" id="no-results" hidden>No accessories match your search.</p>
     </div>
   </section>
 
@@ -51,26 +76,41 @@ const categories = getCategories(products);
 </Layout>
 
 <script>
-  // Client-side category filter — no framework needed for a simple show/hide.
+  // Client-side search + category filter — no framework needed for a
+  // simple show/hide over server-rendered cards.
   const chips = document.querySelectorAll<HTMLButtonElement>(".chip");
   const items = document.querySelectorAll<HTMLElement>(".product-grid-item");
+  const searchInput = document.getElementById("product-search") as HTMLInputElement | null;
+  const noResults = document.getElementById("no-results");
+
+  let activeCategory = "";
+
+  function applyFilters() {
+    const query = (searchInput?.value || "").trim().toLowerCase();
+    let visibleCount = 0;
+
+    items.forEach((item) => {
+      const cats: string[] = JSON.parse(item.dataset.categories || "[]");
+      const matchesCategory = !activeCategory || cats.includes(activeCategory);
+      const matchesSearch = !query || (item.dataset.search || "").includes(query);
+      const show = matchesCategory && matchesSearch;
+      item.style.display = show ? "" : "none";
+      if (show) visibleCount += 1;
+    });
+
+    if (noResults) noResults.hidden = visibleCount > 0;
+  }
 
   chips.forEach((chip) => {
     chip.addEventListener("click", () => {
       chips.forEach((c) => c.classList.remove("is-active"));
       chip.classList.add("is-active");
-
-      const category = chip.dataset.category;
-      items.forEach((item) => {
-        if (!category) {
-          item.style.display = "";
-          return;
-        }
-        const cats: string[] = JSON.parse(item.dataset.categories || "[]");
-        item.style.display = cats.includes(category) ? "" : "none";
-      });
+      activeCategory = chip.dataset.category || "";
+      applyFilters();
     });
   });
+
+  searchInput?.addEventListener("input", applyFilters);
 </script>
 
 <style>
@@ -97,11 +137,40 @@ const categories = getCategories(products);
 
   .catalog { padding: 40px 0 80px; }
 
+  .catalog-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .search-shell {
+    display: flex;
+    align-items: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0 16px;
+    height: 44px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .search-shell i { color: var(--ink-faint); font-size: .82rem; margin-right: 10px; }
+  .search-shell input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: .85rem;
+    width: 100%;
+    color: var(--text-brown);
+    font-family: inherit;
+  }
+  .search-shell input::placeholder { color: var(--ink-faint); }
+
   .category-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-bottom: 28px;
   }
   .chip {
     border: 1px solid var(--border);
@@ -126,7 +195,7 @@ const categories = getCategories(products);
     gap: 24px;
   }
 
-  .empty-state {
+  .empty-state, .no-results {
     text-align: center;
     color: var(--ink-soft);
     padding: 60px 0;
