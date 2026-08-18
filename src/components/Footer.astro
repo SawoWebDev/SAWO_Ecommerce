@@ -1,55 +1,218 @@
 ---
-// Own footer for SAWO_ECOM — simplified, recreated locally from
-// REACT_SITE's Footer.jsx (same near-black band, same social links).
+// Content and structure ported from REACT_SITE's real footer
+// (src/components/Footer/Footer.jsx) — same #1a1a1a band, same column
+// layout, same office/support data. Internal links point at the main site
+// since this storefront (Phase 1, single "/" page — see README) doesn't
+// have those routes itself.
+const MAIN_SITE = "https://www.sawo.com";
 const year = new Date().getFullYear();
+
+const offices = [
+  {
+    icon: "fas fa-globe",
+    title: "GLOBAL SALES & GENERAL INQUIRIES",
+    company: "SAWO Inc.",
+    address: ["Mactan Economic Zone 2, Mactan,", "Cebu 6015, Philippines"],
+    tel: "+63 32 341 2233",
+    email: "info@sawo.com",
+  },
+  {
+    icon: "fas fa-warehouse",
+    title: "SALES & WAREHOUSE FOR THE NORDICS",
+    company: "SAWO Nordic Oy.",
+    address: ["Hampuntie 18, 36220 Kangasala,", "Finland"],
+    tel: "+358 40 038 3265",
+    email: "finland@sawo.com",
+  },
+  {
+    icon: "fas fa-warehouse",
+    title: "SALES & WAREHOUSE FOR ASIA",
+    company: "F.E.M. Ltd",
+    address: ["2302, 23rd Floor, Cable TV Tower 9", "Hoi Shing Road, Tsuen Wan, Hong Kong"],
+    tel: "+852 2417 1188",
+    email: "hongkong@sawo.com",
+  },
+  {
+    icon: "fas fa-warehouse",
+    title: "SALES & WAREHOUSE FOR EUROPE",
+    company: "SAWO EUROPE HUB",
+    address: ["De Vest 24, 5555 XL Valkenswaard", "Netherlands"],
+    tel: "+358 40 016 8269",
+    email: "europehub@sawo.com",
+  },
+];
 ---
 <footer class="site-footer">
-  <div class="wrap footer-inner">
-    <div class="footer-brand">
-      <img src="/logo.webp" alt="SAWO" width="140" height="89" />
-      <p>Genuine SAWO sauna heaters, steam generators, controls, and accessories.</p>
+  <div class="wrap">
+    <div class="footer-columns">
+      <div class="footer-col">
+        <h3>FINNISH SAUNA</h3>
+        <ul>
+          <li><a href={`${MAIN_SITE}/sauna/heaters`}>Sauna Heaters</a></li>
+          <li><a href={`${MAIN_SITE}/sauna/controls`}>Sauna Controls</a></li>
+          <li><a href={`${MAIN_SITE}/sauna/accessories`}>Sauna Accessories</a></li>
+          <li><a href={`${MAIN_SITE}/sauna/rooms`}>Sauna Rooms</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>STEAM ROOM</h3>
+        <ul>
+          <li><a href={`${MAIN_SITE}/steam/generators`}>Steam Generators</a></li>
+          <li><a href={`${MAIN_SITE}/steam/controls`}>Steam Controls</a></li>
+          <li><a href={`${MAIN_SITE}/steam/accessories`}>Steam Accessories</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h3>INFRARED SAUNA</h3>
+        <ul>
+          <li><a href={`${MAIN_SITE}/infrared`}>Infrared Sauna Rooms</a></li>
+          <li><a href={`${MAIN_SITE}/products/infrared-backrest`}>Infrared Backrest</a></li>
+          <li><a href={`${MAIN_SITE}/products/infrared-panels`}>Infrared Panels</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col footer-col-social">
+        <img src="/logo.webp" alt="SAWO" width="140" height="89" />
+        <h3>Follow Us</h3>
+        <div class="social-row">
+          <a href="https://facebook.com/SAWOsaunaworld" target="_blank" rel="noopener noreferrer" aria-label="SAWO on Facebook"><i class="fab fa-facebook-f"></i></a>
+          <a href="https://www.instagram.com/sawosauna/" target="_blank" rel="noopener noreferrer" aria-label="SAWO on Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://ph.linkedin.com/company/sawo-inc" target="_blank" rel="noopener noreferrer" aria-label="SAWO on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://www.youtube.com/@SAWOsauna" target="_blank" rel="noopener noreferrer" aria-label="SAWO on YouTube"><i class="fab fa-youtube"></i></a>
+          <a href="https://www.tiktok.com/@sawosauna" target="_blank" rel="noopener noreferrer" aria-label="SAWO on TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="mailto:help@sawo.com" aria-label="Email SAWO support"><i class="fas fa-envelope"></i></a>
+          <a href="tel:+63323412233" aria-label="Call SAWO"><i class="fas fa-phone"></i></a>
+        </div>
+      </div>
     </div>
 
-    <div class="footer-social">
-      <a href="https://facebook.com/SAWOsaunaworld" target="_blank" rel="noopener noreferrer" aria-label="SAWO on Facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://www.instagram.com/sawosauna/" target="_blank" rel="noopener noreferrer" aria-label="SAWO on Instagram"><i class="fab fa-instagram"></i></a>
-      <a href="https://ph.linkedin.com/company/sawo-inc" target="_blank" rel="noopener noreferrer" aria-label="SAWO on LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-      <a href="https://www.youtube.com/@SAWOsauna" target="_blank" rel="noopener noreferrer" aria-label="SAWO on YouTube"><i class="fab fa-youtube"></i></a>
-      <a href="mailto:help@sawo.com" aria-label="Email SAWO support"><i class="fas fa-envelope"></i></a>
+    <div class="footer-support-download">
+      <div>
+        <h3>SUPPORT</h3>
+        <div class="link-row">
+          <a href={`${MAIN_SITE}/support/faq`}>Frequently Asked Questions</a>
+          <a href={`${MAIN_SITE}/about`}>About Us</a>
+          <a href={`${MAIN_SITE}/contact`}>Contact Us</a>
+          <a href={`${MAIN_SITE}/careers`}>Careers</a>
+          <a href={`${MAIN_SITE}/privacy-policy`}>Privacy Policy</a>
+          <a href={`${MAIN_SITE}/sitemap`}>Sitemap</a>
+        </div>
+      </div>
+      <div>
+        <h3>DOWNLOAD</h3>
+        <div class="link-row">
+          <a href={`${MAIN_SITE}/support/catalogue`}>Product Catalogue</a>
+          <a href={`${MAIN_SITE}/support/manuals`}>User Manuals</a>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="wrap footer-bottom">
-    <span>&copy; {year} SAWO. All rights reserved.</span>
+
+    <div class="footer-tech-support">
+      <i class="fas fa-headset"></i>
+      <div>
+        <h3>TECHNICAL SUPPORT</h3>
+        <p>For technical support and reclamations, please contact:</p>
+        <p>Whatsapp: <a href="tel:+639497594450">+63 949 759 4450</a></p>
+        <p><a href="mailto:help@sawo.com">help@sawo.com</a></p>
+      </div>
+    </div>
+
+    <div class="footer-offices">
+      <h3>OFFICES</h3>
+      <div class="offices-grid">
+        {offices.map((office) => (
+          <div class="office">
+            <i class={office.icon}></i>
+            <div>
+              <h4>{office.title}</h4>
+              <p class="office-company">{office.company}</p>
+              {office.address.map((line) => <p>{line}</p>)}
+              <p>Tel: <a href={`tel:${office.tel.replace(/\s+/g, "")}`}>{office.tel}</a></p>
+              <p><a href={`mailto:${office.email}`}>{office.email}</a></p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="footer-copyright">
+      <p>&copy; {year} All rights reserved. &middot; SAWO</p>
+    </div>
   </div>
 </footer>
 
 <style>
-  .site-footer { background: var(--ink); color: #fff; padding: 40px 0 0; margin-top: 60px; }
-  .footer-inner {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
-    flex-wrap: wrap;
-    padding-bottom: 28px;
-  }
-  .footer-brand img { height: 48px; width: auto; margin-bottom: 10px; filter: brightness(0) invert(1); }
-  .footer-brand p { max-width: 380px; font-size: .82rem; color: #c9c2b8; margin: 0; }
+  .site-footer { background: var(--ink); color: #fff; padding: 48px 0 0; margin-top: 60px; font-family: 'Montserrat', sans-serif; }
+  .site-footer h3 { font-weight: 700; font-size: 1.1rem; margin: 0 0 10px; }
+  .site-footer a { color: inherit; }
+  .site-footer a:hover { color: #d3cec5; }
 
-  .footer-social { display: flex; gap: 10px; }
-  .footer-social a {
+  .footer-columns {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+  }
+  .footer-col ul { display: flex; flex-direction: column; gap: 6px; font-size: .85rem; }
+  .footer-col-social { text-align: center; }
+  .footer-col-social img { height: 60px; width: auto; margin: 0 auto 14px; filter: brightness(0) invert(1); }
+  .social-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; font-size: 1.05rem; }
+  .social-row a {
     width: 36px; height: 36px; border-radius: 50%;
-    background: rgba(255,255,255,.08);
     display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,.06);
     transition: background .2s ease;
   }
-  .footer-social a:hover { background: var(--brown-text); }
+  .social-row a:hover { background: var(--brown-text); color: #fff; }
 
-  .footer-bottom {
-    border-top: 1px solid rgba(255,255,255,.12);
-    padding: 16px 0;
-    font-size: .75rem;
-    color: #9c948a;
+  .footer-support-download {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+  }
+  .link-row { display: flex; flex-wrap: wrap; gap: 14px; font-size: .85rem; }
+
+  .footer-tech-support {
+    display: flex;
+    gap: 16px;
+    padding: 24px 0;
+    border-bottom: 1px solid rgba(255,255,255,.18);
+    font-size: .85rem;
+  }
+  .footer-tech-support > i { font-size: 1.3rem; margin-top: 4px; flex-shrink: 0; }
+  .footer-tech-support p { margin: 0 0 4px; }
+
+  .footer-offices { padding: 28px 0; }
+  .offices-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 16px; }
+  .office { display: flex; gap: 12px; font-size: .82rem; }
+  .office > i { font-size: 1.1rem; margin-top: 3px; flex-shrink: 0; }
+  .office h4 { font-size: .92rem; font-weight: 700; margin: 0 0 4px; line-height: 1.3; }
+  .office p { margin: 0 0 2px; }
+  .office-company { font-weight: 600; }
+
+  .footer-copyright {
     text-align: center;
+    font-size: .8rem;
+    color: #9c948a;
+    padding: 20px 0;
+  }
+
+  @media (max-width: 1080px) {
+    .footer-columns { grid-template-columns: repeat(2, 1fr); }
+    .offices-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 640px) {
+    .footer-columns { grid-template-columns: 1fr; text-align: center; }
+    .footer-col ul { align-items: center; }
+    .footer-support-download { grid-template-columns: 1fr; text-align: center; }
+    .link-row { justify-content: center; }
+    .footer-tech-support { flex-direction: column; align-items: center; text-align: center; }
+    .offices-grid { grid-template-columns: 1fr; }
+    .office { flex-direction: column; align-items: center; text-align: center; }
   }
 </style>

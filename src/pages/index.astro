@@ -19,22 +19,119 @@ function searchText(product: (typeof products)[number]): string {
     .join(" ")
     .toLowerCase();
 }
+
+// Hero + category tile grid ported from the real, live "Sauna Accessories"
+// landing page (frontend-next's /sauna/accessories route — see its built
+// output for the reference markup/copy this section matches). Images stay
+// on the main site's CDN (www.sawo.com/assets/...) since this storefront
+// doesn't have local copies. Tile `category` values must match the labels
+// ACCESSORY_GROUPS produces in products.ts so clicking one can drive the
+// existing chip filter below instead of duplicating filter logic.
+const CATEGORY_TILES = [
+  {
+    category: "Accessory Sets",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/Signature-D-v4-scaled.webp",
+    title: "Accessory Sets",
+    copy: "Our carefully curated accessory sets offer something for everyone. From natural, zero-waste options to bold & sophisticated designs, the sets enhance your sauna enjoyment in every possible way.",
+  },
+  {
+    category: "Pails & Ladles",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/DRAGON-FIRE-PAIL-AND-LADDLE-SCENE-600x600-1.webp",
+    title: "Pails & Ladles",
+    copy: "Essential to Finnish saunas, our SAWO selection offers pails ranging from 2 to 40 liters. Choose from traditional cedar, aspen, & pine or modern stainless steel options. Complete your set with ladles.",
+  },
+  {
+    category: "Thermometers & Combined Meters",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/BoxType2-copy-new.webp",
+    title: "Thermometers & Combined Meters",
+    copy: "Traditional thermometers & hygrometers signal sauna readiness. Explore diverse shapes & styles, and try our 15-minute sand timers for socializing or newcomers.",
+  },
+  {
+    category: "Clocks & Timers",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/sand-timer-copy-new.webp",
+    title: "Clocks & Sandtimers",
+    copy: "Want to see who lasts the longest in sauna? Our 15min sand timers are a great way to create conversation or perfect for those who are new to Finnish sauna.",
+  },
+  {
+    category: "Sauna Lights",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/TR-LIGHT-COVER_SCENE1-copy.webp",
+    title: "Sauna Lights & Covers",
+    copy: "Create the perfect ambience with a proper play of lighting. Our different light shades allow you to create the feel of soothing & warm.",
+  },
+  {
+    category: "Headrest & Backrests",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/506-2-D.webp",
+    title: "Headrests & Backrests",
+    copy: "Wooden headrests & backrests, along with lounge backrests made from durable materials like wood, memory foam, or fabric, offer comfort with moisture-resistant upholstery for durability.",
+  },
+  {
+    category: "Doors & Handles",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/DOORS-AND-HANDLES-copy.webp",
+    title: "Doors & Handles",
+    copy: "Elevate your sauna with SAWO's sauna doors. Crafted for durability, they feature rubber lining, magnetic lock, stainless hinges, & laminated jambs. Choose from glass options for a light-filled, spacious feel.",
+  },
+  {
+    category: "Benches, Hangers & Floor Mats",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/siro-bench.webp",
+    title: "Benches & Floor Tiles",
+    copy: "Upgrade your sauna experience with comfy, stylish benches that support & enhance relaxation. Choose from various high-quality designs to suit your taste & space.",
+  },
+  {
+    category: "Kivistone",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/R-500-D_Scene2.webp",
+    title: "Kivistone",
+    copy: "Kivistone offers a variety of unique soapstone products for homes, gifts, & corporate use, featuring a wide range of innovative designs.",
+  },
+  {
+    category: "Ventilations & Miscellaneous Items",
+    image: "https://www.sawo.com/assets/Sauna/Accessories/Ventilation.webp",
+    title: "Ventilations & Add-Ons",
+    copy: "Round out your sauna experience with our range of ventilations & essential items. Elevate your time in the sauna with SAWO's complimentary items.",
+  },
+].filter((tile) => groupLabels.includes(tile.category));
 ---
 <Layout>
   <Header />
 
-  <section class="hero">
-    <div class="wrap hero-inner">
-      <span class="hero-eyebrow">SAWO Shop</span>
-      <h1 class="site-heading">Sauna &amp; Steam Accessories</h1>
-      <p class="hero-copy">
-        Pails, ladles, thermometers, lights, and every other genuine SAWO
-        accessory &mdash; the same catalog trusted by sauna builders worldwide.
-      </p>
+  <section class="sa-hero">
+    <img
+      src="https://www.sawo.com/assets/Sauna/Accessories/Signature-BL-v2-1-scaled.webp"
+      alt="Sauna Accessories"
+      class="sa-hero-bg"
+      loading="eager"
+    />
+    <div class="sa-hero-overlay"></div>
+    <div class="wrap sa-hero-content">
+      <h1 class="sa-hero-title">SAUNA ACCESSORIES</h1>
+      <p class="sa-hero-subtitle">Discover the Perfect Sauna Accessories</p>
     </div>
+    <svg class="sa-hero-waves" xmlns="http://www.w3.org/2000/svg" viewBox="0 24 150 28" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <defs>
+        <path id="hero-gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path>
+      </defs>
+      <use href="#hero-gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.4)"></use>
+      <use href="#hero-gentle-wave" x="48" y="7" fill="#fff"></use>
+    </svg>
   </section>
 
-  <section class="catalog">
+  {CATEGORY_TILES.length > 0 && (
+    <section class="sa-tiles">
+      <div class="wrap">
+        <h2 class="sa-tiles-title">Discover the Perfect Sauna Accessories</h2>
+        <div class="sa-tile-grid">
+          {CATEGORY_TILES.map((tile) => (
+            <button type="button" class="sa-tile" data-jump-category={tile.category}>
+              <img src={tile.image} alt={tile.title} loading="lazy" />
+              <h3>{tile.title}</h3>
+              <p>{tile.copy}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="catalog" id="catalog">
     <div class="wrap">
       <div class="catalog-toolbar">
         <div class="search-shell">
@@ -111,28 +208,138 @@ function searchText(product: (typeof products)[number]): string {
   });
 
   searchInput?.addEventListener("input", applyFilters);
+
+  // Category tiles (hero section) drive the same chip filter below instead
+  // of duplicating the filtering logic — click finds the matching chip by
+  // its data-category, fires its own click handler, then scrolls the
+  // filtered grid into view.
+  const tiles = document.querySelectorAll<HTMLButtonElement>(".sa-tile");
+  tiles.forEach((tile) => {
+    tile.addEventListener("click", () => {
+      const category = tile.dataset.jumpCategory || "";
+      const matchingChip = Array.from(chips).find((c) => c.dataset.category === category);
+      matchingChip?.click();
+      document.getElementById("catalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
 </script>
 
 <style>
-  .hero {
-    background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
-    padding: 56px 0 40px;
+  /* Hero — ported from the real /sauna/accessories page (frontend-next):
+     full-bleed photo, dark scrim, centered white title/subtitle, wave
+     divider at the base. */
+  .sa-hero {
+    position: relative;
+    min-height: 70vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    overflow: hidden;
+    background: #241c17;
   }
-  .hero-inner { max-width: 680px; margin: 0 auto; }
-  .hero-eyebrow {
-    display: inline-block;
-    font-size: .72rem;
-    font-weight: 800;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: var(--brown-text);
-    margin-bottom: 10px;
+  .sa-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
   }
-  .hero-copy {
-    margin: 14px 0 0;
-    font-size: .98rem;
+  .sa-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, .38);
+  }
+  .sa-hero-content { position: relative; z-index: 1; padding: 60px 32px; }
+  .sa-hero-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 45px;
+    line-height: 52px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+  }
+  .sa-hero-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 22px;
+    line-height: 38px;
+    font-weight: 400;
+    color: #fff;
+    margin: 12px 0 0;
+  }
+  .sa-hero-waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    z-index: 1;
+  }
+  @media (max-width: 768px) {
+    .sa-hero-title { font-size: 28px; line-height: 36px; }
+    .sa-hero-subtitle { font-size: 16px; line-height: 28px; }
+  }
+
+  /* Category tile grid — same card treatment as the reference's
+     .custom-product-grid .product. */
+  .sa-tiles { padding: 64px 0 20px; }
+  .sa-tiles-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 400;
+    color: var(--heading);
+    font-size: 2.1rem;
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  .sa-tile-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin: 25px auto 0;
+  }
+  .sa-tile {
+    display: block;
+    text-align: left;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    background: var(--surface);
+    transition: transform .3s ease, box-shadow .3s ease;
+    font-family: inherit;
+  }
+  .sa-tile:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0,0,0,.12), 0 0 20px rgba(166,120,83,.15);
+  }
+  .sa-tile img {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    transition: transform .3s ease;
+  }
+  .sa-tile:hover img { transform: scale(1.05); }
+  .sa-tile h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 8px 0 6px;
+    color: var(--ink);
+    transition: color .3s ease;
+  }
+  .sa-tile:hover h3 { color: var(--brown-text); }
+  .sa-tile p {
+    font-size: .84rem;
     color: var(--ink-soft);
+    line-height: 1.55;
+    margin: 0;
+  }
+  @media (max-width: 1024px) {
+    .sa-tile-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .sa-tile-grid { grid-template-columns: 1fr; }
   }
 
   .catalog { padding: 40px 0 80px; }
@@ -209,6 +416,6 @@ function searchText(product: (typeof products)[number]): string {
   }
   @media (max-width: 480px) {
     .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .hero { padding: 40px 0 28px; }
+    .sa-hero-content { padding: 40px 20px; }
   }
 </style>

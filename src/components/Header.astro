@@ -1,13 +1,63 @@
 ---
-// Own header for SAWO_ECOM. Structure (logo left, search + cart right)
-// is a simplified version of REACT_SITE's Header.jsx, recreated locally —
-// no shared component, no shared CSS.
+// Structure and hover treatment ported from REACT_SITE's real header
+// (src/components/Header/Header.jsx — "Layout 1 / Style 2": solid white
+// bar, gradient brown pill on hover/active, same logo). No mega-menu here —
+// this storefront is Phase 1 single-page (see README), so the dropdown
+// items just link out to the matching section on the main site.
+const MAIN_SITE = "https://www.sawo.com";
+
+const navItems = [
+  { name: "Home", href: MAIN_SITE },
+  {
+    name: "Sauna",
+    href: `${MAIN_SITE}/sauna`,
+    submenu: [
+      { name: "Sauna Heaters", href: `${MAIN_SITE}/sauna/heaters` },
+      { name: "Sauna Controls", href: `${MAIN_SITE}/sauna/controls` },
+      { name: "Sauna Accessories", href: `${MAIN_SITE}/sauna/accessories` },
+      { name: "Sauna Rooms", href: `${MAIN_SITE}/sauna/rooms` },
+    ],
+  },
+  {
+    name: "Steam",
+    href: `${MAIN_SITE}/steam`,
+    submenu: [
+      { name: "Steam Generators", href: `${MAIN_SITE}/steam/generators` },
+      { name: "Steam Controls", href: `${MAIN_SITE}/steam/controls` },
+      { name: "Steam Accessories", href: `${MAIN_SITE}/steam/accessories` },
+    ],
+  },
+  { name: "Infrared", href: `${MAIN_SITE}/infrared` },
+  { name: "Support", href: `${MAIN_SITE}/support/faq` },
+  { name: "Contact Us", href: `${MAIN_SITE}/contact` },
+];
 ---
 <header class="site-header">
   <div class="wrap header-inner">
     <a href="/" class="brand">
       <img src="/logo.webp" alt="SAWO" width="120" height="76" />
     </a>
+
+    <nav class="main-nav" aria-label="Primary">
+      {navItems.map((item) => (
+        <div class="nav-item">
+          <a href={item.href} class="nav-toplevel">
+            {item.name}
+            {item.submenu && <i class="fa-solid fa-chevron-down"></i>}
+          </a>
+          {item.submenu && (
+            <div class="nav-dropdown">
+              {item.submenu.map((sub) => (
+                <a href={sub.href} class="nav-dropdown-item">{sub.name}</a>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+      <span class="nav-item">
+        <a href="/" class="nav-toplevel is-active">Shop Accessories</a>
+      </span>
+    </nav>
 
     <div class="header-actions">
       <div class="search-shell">
@@ -16,6 +66,9 @@
       </div>
       <button class="icon-btn" aria-label="Cart">
         <i class="fa-solid fa-bag-shopping"></i>
+      </button>
+      <button class="icon-btn mobile-toggle" aria-label="Open menu">
+        <i class="fa-solid fa-bars"></i>
       </button>
     </div>
   </div>
@@ -28,32 +81,92 @@
     position: sticky;
     top: 0;
     z-index: 20;
+    box-shadow: 0 2px 10px rgba(0,0,0,.04);
   }
   .header-inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 20px;
-    padding: 14px 32px;
+    padding: 12px 32px;
   }
-  .brand img { height: 44px; width: auto; }
-  .header-actions { display: flex; align-items: center; gap: 12px; }
+  .brand { flex-shrink: 0; }
+  .brand img { height: 48px; width: auto; }
 
+  /* Nav — same gradient-pill hover/active as REACT_SITE's Style 2 header
+     (Header.jsx: linear-gradient(135deg, #af8564 0%, #c9a97e 100%)). */
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-right: auto;
+    flex-wrap: nowrap;
+  }
+  .nav-item { position: relative; }
+  .nav-toplevel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: .85rem;
+    font-weight: 500;
+    color: rgb(51,51,51);
+    white-space: nowrap;
+  }
+  .nav-toplevel i { font-size: .6rem; }
+  .nav-toplevel:hover,
+  .nav-toplevel.is-active {
+    background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+    color: #fff;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.3),
+      inset 0 -1px 0 rgba(0,0,0,.12),
+      0 2px 6px rgba(139,94,60,.22);
+  }
+
+  .nav-dropdown {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    margin-top: 6px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18);
+    border: 1px solid rgba(0,0,0,.06);
+    padding: 8px;
+    min-width: 210px;
+    display: none;
+    z-index: 30;
+  }
+  .nav-item:hover .nav-dropdown { display: block; }
+  .nav-dropdown-item {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: .8rem;
+    color: rgb(51,51,51);
+  }
+  .nav-dropdown-item:hover {
+    background: linear-gradient(135deg, var(--brown) 0%, var(--brown-light) 100%);
+    color: #fff;
+  }
+
+  .header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
   .search-shell {
     display: flex;
     align-items: center;
     background: var(--bg-alt);
     border-radius: 100px;
     padding: 0 14px;
-    height: 40px;
-    width: 240px;
+    height: 38px;
+    width: 200px;
   }
-  .search-shell i { color: var(--ink-faint); font-size: .8rem; margin-right: 8px; }
+  .search-shell i { color: var(--ink-faint); font-size: .78rem; margin-right: 8px; }
   .search-shell input {
     border: none;
     background: transparent;
     outline: none;
-    font-size: .85rem;
+    font-size: .82rem;
     width: 100%;
     color: var(--text-brown);
     font-family: inherit;
@@ -61,8 +174,8 @@
   .search-shell input::placeholder { color: var(--ink-faint); }
 
   .icon-btn {
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -74,9 +187,14 @@
     transition: background .2s ease;
   }
   .icon-btn:hover { background: var(--border); }
+  .mobile-toggle { display: none; }
 
+  @media (max-width: 1080px) {
+    .main-nav { display: none; }
+    .mobile-toggle { display: flex; }
+  }
   @media (max-width: 640px) {
-    .header-inner { padding: 12px 18px; flex-wrap: wrap; }
-    .search-shell { width: 100%; order: 3; }
+    .header-inner { padding: 12px 18px; }
+    .search-shell { display: none; }
   }
 </style>

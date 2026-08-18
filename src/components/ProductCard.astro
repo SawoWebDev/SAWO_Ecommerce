@@ -27,6 +27,54 @@ const currencyFormatter = new Intl.NumberFormat("en-PH", {
   maximumFractionDigits: 2,
 });
 
+// Placeholder price/rating/SKU generator — product_commerce rows for most
+// accessories aren't priced yet (see products.ts's comment on those fields
+// being null pre-CMS), so this fills the card in for a "what will this look
+// like with real data" preview. Seeded from the product's own id/slug so
+// values stay stable across reloads instead of reshuffling every request;
+// swap out once product_commerce is actually populated.
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
+  return Math.abs(h);
+}
+function rand01(seed: string): number {
+  return (hashStr(seed) % 10000) / 10000;
+}
+function niceAmount(x: number): number {
+  return Math.max(199, Math.round(x / 5) * 5);
+}
+
+const PRICE_RANGE_BY_CATEGORY: Record<string, [number, number]> = {
+  Pails: [900, 2600], Ladles: [650, 2200], "Pail Shower": [2400, 3800],
+  Thermometers: [800, 3000], "Combined Meters": [800, 3000], Hygrometers: [800, 3000],
+  Clocks: [600, 2400], "Sand Timers": [600, 2400], "Clocks & Timers": [600, 2400],
+  "Sauna Lights": [1400, 5200], "Light Covers": [1400, 5200], "Lights & Covers": [1400, 5200],
+  Headrests: [1200, 3400], Backrests: [1200, 3400], "Headrest & Backrest": [1200, 3400],
+  "Doors & Handles": [1800, 38000], "Sauna Doors": [1800, 38000], "Sauna Handles": [1800, 38000],
+  Benches: [1500, 18000], "Wooden Floor Mats": [1200, 4200], "Cloth Hangers": [600, 1800], "Benches & Floor Tiles": [1500, 18000],
+  Kivistone: [2400, 11200],
+  "Ventilation & Miscellaneous": [600, 5200], Ventilations: [600, 5200], "Add-Ons": [600, 5200],
+  "Accessory Sets": [3200, 14400],
+};
+const DEFAULT_PRICE_RANGE: [number, number] = [800, 4800];
+
+const seed = product.slug || product.id;
+const [priceMin, priceMax] = PRICE_RANGE_BY_CATEGORY[category ?? ""] ?? DEFAULT_PRICE_RANGE;
+
+const placeholderPrice = hasPrice ? null : niceAmount(priceMin + rand01(seed + "|price") * (priceMax - priceMin));
+const placeholderIsDiscounted = !hasPrice && rand01(seed + "|disc") < 0.28;
+const placeholderCompareAt = placeholderIsDiscounted
+  ? niceAmount(placeholderPrice! * (1.12 + rand01(seed + "|discamt") * 0.22))
+  : null;
+
+const displayPrice = hasPrice ? product.price! : placeholderPrice;
+const displayCompareAt = hasDiscount ? product.compare_at_price! : placeholderCompareAt;
+const showDiscount = hasDiscount || placeholderIsDiscounted;
+
+const placeholderSku = product.sku || (seed ? seed.toUpperCase().replace(/[^A-Z0-9]+/g, "-").slice(0, 16) : null);
+const freeShipping = (displayPrice ?? 0) >= 1500 || rand01(seed + "|ship") < 0.3;
+
 const STOCK_BADGES: Record<string, { label: string; className: string }> = {
   out_of_stock: { label: "Out of Stock", className: "stock-out" },
   preorder: { label: "Preorder", className: "stock-preorder" },
@@ -42,7 +90,12 @@ const stockBadge = product.is_low_stock
     : null;
 
 const hasRating = product.rating_average !== null && product.rating_average! > 0;
-const filledStars = hasRating ? Math.round(product.rating_average! * 2) / 2 : 0;
+const placeholderRating = hasRating ? null : Math.round((4.2 + rand01(seed + "|rating") * 0.8) * 2) / 2;
+const placeholderReviewCount = hasRating ? null : 4 + Math.floor(rand01(seed + "|reviews") * 260);
+
+const displayRating = hasRating ? product.rating_average! : placeholderRating!;
+const displayReviewCount = hasRating ? product.rating_count! : placeholderReviewCount!;
+const filledStars = Math.round(displayRating * 2) / 2;
 ---
 <article class="product-card">
   <div class="product-image">
@@ -57,32 +110,38 @@ const filledStars = hasRating ? Math.round(product.rating_average! * 2) / 2 : 0;
       {product.featured && <span class="badge badge-featured">Featured</span>}
       {stockBadge && <span class={`badge ${stockBadge.className}`}>{stockBadge.label}</span>}
     </div>
+    <button class="wishlist-btn" type="button" aria-label="Add to wishlist">
+      <i class="fa-regular fa-heart"></i>
+    </button>
   </div>
 
   <div class="product-body">
+    {placeholderSku && <span class="product-sku">SKU {placeholderSku}</span>}
     {category && <span class="product-category">{category}</span>}
     <h3 class="product-name">{product.name}</h3>
 
-    {hasRating && (
-      <div class="product-rating" aria-label={`Rated ${product.rating_average} out of 5`}>
-        <span class="stars">
-          {Array.from({ length: 5 }).map((_, i) => {
-            const diff = filledStars - i;
-            const icon = diff >= 1 ? "fa-solid fa-star" : diff >= 0.5 ? "fa-solid fa-star-half-stroke" : "fa-regular fa-star";
-            return <i class={icon}></i>;
-          })}
-        </span>
-        {product.rating_count! > 0 && <span class="rating-count">({product.rating_count})</span>}
-      </div>
-    )}
+    <div class="product-rating" aria-label={`Rated ${displayRating} out of 5`}>
+      <span class="stars">
+        {Array.from({ length: 5 }).map((_, i) => {
+          const diff = filledStars - i;
+          const icon = diff >= 1 ? "fa-solid fa-star" : diff >= 0.5 ? "fa-solid fa-star-half-stroke" : "fa-regular fa-star";
+          return <i class={icon}></i>;
+        })}
+      </span>
+      {displayReviewCount > 0 && <span class="rating-count">({displayReviewCount} reviews)</span>}
+    </div>
 
     {excerpt && <p class="product-excerpt">{excerpt}</p>}
 
+    {freeShipping && (
+      <span class="ship-tag"><i class="fa-solid fa-truck-fast"></i> Free Shipping</span>
+    )}
+
     <div class="product-footer">
-      {hasPrice ? (
+      {displayPrice !== null ? (
         <div class="product-price">
-          {hasDiscount && <span class="price-compare">{currencyFormatter.format(product.compare_at_price!)}</span>}
-          <span class="price-current">{currencyFormatter.format(product.price!)}</span>
+          {showDiscount && displayCompareAt && <span class="price-compare">{currencyFormatter.format(displayCompareAt)}</span>}
+          <span class="price-current">{currencyFormatter.format(displayPrice)}</span>
         </div>
       ) : <span class="price-unavailable">Price on request</span>}
       <button class="product-cta" type="button">View Details</button>
