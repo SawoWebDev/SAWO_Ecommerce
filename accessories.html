@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sauna Accessories — SAWO</title>
+<link rel="icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* Palette pulled from src/pages/AboutUs/Sustainability.jsx — that page's
+     browns (#8B5E3C / #A67853 / #C4A574 / #6D4A2E) and its heavy use of
+     near-black body text (color:"#000") are the real, current brand look,
+     not the older #AF8564/#916E53 pairing the previous mockup used. */
+  :root{
+    --bg:            #FBF8F3;
+    --bg-alt:        #F3EAD9;
+    --surface:       #FFFFFF;
+    --ink:           #1A1A1A;
+    --ink-soft:      #3A3A3A;
+    --ink-faint:     #8C8378;
+
+    --brown:         #A67853;   /* Sustainability.jsx gradient stop, uwb-sauna-button text */
+    --brown-text:    #8B5E3C;   /* Sustainability.jsx gradient stop, section-header color, card fills */
+    --brown-deep:    #6D4A2E;   /* darkest step, hover states */
+    --brown-light:   #C4A574;   /* icon-wrapper1 gradient stop */
+    --gold:          #F5D898;   /* icon-wrapper1::before glow stop */
+    --cream:         #FFF8EC;
+    --star:          #D9A441;
+
+    --heading:       #8B5E3C;
+    --text-brown:    #1A1A1A;   /* Sustainability.jsx body copy is near-black, not muted brown */
+
+    --sage:          #5C7A52;
+    --sage-bg:       #EAF1E6;
+    --terracotta:    #B5502E;
+    --terracotta-bg: #FBE6DE;
+
+    --border:        #E8DCC8;
+    --border-soft:   #F1E8D8;
+
+    --radius-lg:     20px;
+    --radius-md:     14px;
+    --radius-sm:     8px;
+
+    --shadow-sm:     0 6px 18px rgba(139,94,60,.10);
+    --shadow-md:     0 16px 36px rgba(139,94,60,.18);
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  body{
+    margin:0; font-family:'Montserrat',sans-serif; color:var(--text-brown); background:var(--bg);
+    -webkit-font-smoothing:antialiased; line-height:1.5;
+  }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; cursor:pointer; }
+  input,select{ font-family:inherit; }
+  ul{ list-style:none; margin:0; padding:0; }
+  :focus-visible{ outline:2px solid var(--brown-text); outline-offset:2px; }
+  .wrap{ max-width:1320px; margin:0 auto; padding:0 32px; }
+
+  /* Gradient heading text — matches Sustainability.jsx's .hero-gradient-text /
+     practices h2 treatment exactly (135deg, #8b5e3c -> #a67853). */
+  .site-heading{
+    font-weight:700; font-size:2.1rem; letter-spacing:-.01em; margin:0;
+    background:linear-gradient(135deg,#8b5e3c 0%,#a67853 100%);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  }
+
+  /* ============ BODY HEADER ============ */
+  .body-header{ background:var(--surface); border-bottom:1px solid var(--border-soft); }
+  .body-header-inner{ display:flex; align-items:center; justify-content:space-between; gap:20px; padding:16px 32px; max-width:1320px; margin:0 auto; }
+  .body-header-title{ display:flex; align-items:center; gap:10px; }
+  .body-header-title i{
+    width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,var(--brown-text) 0%,var(--brown-light) 100%); color:#fff; font-size:.9rem;
+    box-shadow:0 6px 16px rgba(139,94,60,.35);
+  }
+  .body-header-title span{ font-weight:800; font-size:1rem; color:var(--brown-text); }
+  .body-header-actions{ display:flex; align-items:center; gap:8px; }
+  .search-shell{ display:flex; align-items:center; background:var(--bg-alt); border-radius:100px; padding:0 14px; height:38px; width:230px; }
+  .search-shell i{ color:var(--ink-faint); font-size:.8rem; margin-right:8px; }
+  .search-shell input{ border:none; background:transparent; outline:none; font-size:.8rem; width:100%; color:var(--text-brown); }
+  .search-shell input::placeholder{ color:var(--ink-faint); }
+  .icon-btn{
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:transparent; border:none; color:var(--brown-deep); font-size:1rem; position:relative; transition:background .2s ease;
+  }
+  .icon-btn:hover{ background:var(--bg-alt); }
+  .cart-badge{
+    position:absolute; top:0; right:0; background:var(--brown-text); color:#fff; font-size:.6rem; font-weight:700;
+    width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ============ BREADCRUMB + PAGE HEAD ============ */
+  .page-head{ padding:30px 0 8px; }
+  .breadcrumb{ font-size:.78rem; color:var(--ink-faint); margin-bottom:14px; }
+  .breadcrumb a{ color:var(--ink-faint); }
+  .breadcrumb a:hover{ color:var(--brown-text); }
+  .breadcrumb i{ font-size:.6rem; margin:0 8px; }
+  .page-head h1{ margin:0 0 10px; font-size:2.4rem; }
+  .page-head p{ font-size:.94rem; color:var(--ink-soft); max-width:760px; margin:0; }
+
+  /* ============ LAYOUT ============ */
+  .layout{ display:grid; grid-template-columns:270px 1fr; gap:36px; padding:32px 0 40px; align-items:start; }
+  .layout aside{ position:sticky; top:20px; }
+
+  /* ---- Sidebar ---- */
+  .concierge{
+    background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-md);
+    padding:22px 20px; box-shadow:var(--shadow-sm); margin-bottom:22px;
+  }
+  .concierge h4{ font-size:.72rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:var(--brown-text); margin:0 0 4px; }
+  .concierge > p{ font-size:.78rem; color:var(--ink-soft); margin:0 0 16px; line-height:1.5; }
+  .concierge-links{ display:flex; flex-direction:column; gap:2px; margin-bottom:16px; }
+  .concierge-links a{
+    display:flex; align-items:center; gap:11px; padding:10px 8px; border-radius:var(--radius-sm); font-size:.8rem;
+    font-weight:600; color:var(--brown-text); transition:background .2s ease;
+  }
+  .concierge-links a:hover{ background:var(--bg-alt); }
+  .concierge-links a i:first-child{
+    width:30px; height:30px; border-radius:50%;
+    background:linear-gradient(135deg,var(--brown-text) 0%,var(--brown-light) 100%); color:#fff;
+    box-shadow:0 4px 10px rgba(139,94,60,.35);
+    display:flex; align-items:center; justify-content:center; font-size:.72rem; flex-shrink:0;
+  }
+  .concierge-links a i:last-child{ margin-left:auto; font-size:.65rem; color:var(--ink-faint); }
+  .concierge-trust{ border-top:1px solid var(--border-soft); padding-top:16px; text-align:center; }
+  .concierge-trust .stars{ color:var(--star); font-size:.8rem; margin-bottom:4px; }
+  .concierge-trust p{ font-size:.72rem; color:var(--ink-soft); margin:0 0 12px; }
+  .concierge-trust p strong{ color:var(--brown-text); }
+  .btn-block-outline{
+    display:block; width:100%; text-align:center; padding:10px; border-radius:var(--radius-sm); border:1px solid var(--border);
+    font-size:.76rem; font-weight:700; color:var(--brown-deep);
+  }
+  .btn-block-outline:hover{ border-color:var(--brown-text); background:var(--bg-alt); }
+
+  .filters{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-md); overflow:hidden; }
+  .filter-group{ border-bottom:1px solid var(--border-soft); }
+  .filter-group:last-child{ border-bottom:none; }
+  .filter-group summary{
+    list-style:none; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    padding:16px 18px; font-size:.76rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--brown-text);
+  }
+  .filter-group summary::-webkit-details-marker{ display:none; }
+  .filter-group summary i{ font-size:.65rem; color:var(--ink-faint); transition:transform .2s ease; }
+  .filter-group[open] summary i{ transform:rotate(180deg); }
+  .filter-body{ padding:2px 10px 14px; display:flex; flex-direction:column; gap:2px; max-height:340px; overflow-y:auto; }
+  .cat-link{
+    display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 8px; border-radius:var(--radius-sm);
+    font-size:.8rem; font-weight:600; color:var(--text-brown); transition:background .2s ease, color .2s ease;
+  }
+  .cat-link:hover{ background:var(--bg-alt); color:var(--brown-text); }
+  .cat-link.active{ background:var(--brown-text); color:#fff; }
+  .cat-link .count{ font-size:.7rem; color:var(--ink-faint); font-weight:700; }
+  .cat-link.active .count{ color:rgba(255,255,255,.75); }
+  .filter-check{ display:flex; align-items:center; gap:9px; font-size:.82rem; color:var(--text-brown); cursor:pointer; padding:6px 8px; }
+  .filter-check input{ accent-color:var(--brown-text); width:15px; height:15px; }
+
+  /* ---- Main column ---- */
+  .results-bar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .results-count{ font-size:.85rem; color:var(--ink-soft); font-weight:600; }
+  .results-count strong{ color:var(--brown-text); }
+  .sort-select{ display:flex; align-items:center; gap:8px; font-size:.8rem; font-weight:600; color:var(--brown-deep); }
+  .sort-select select{
+    border:1px solid var(--border); border-radius:100px; padding:9px 30px 9px 15px;
+    background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238B5E3C'/%3E%3C/svg%3E") no-repeat right 14px center;
+    appearance:none; font-weight:600; font-size:.8rem; color:var(--brown-text);
+  }
+
+  /* ---- Category sections ---- */
+  .cat-section{ padding:36px 0 6px; scroll-margin-top:20px; }
+  .cat-section-head{ display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid var(--border); }
+  .cat-section-head h2{ font-size:1.5rem; }
+  .cat-section-head .count{ font-size:.78rem; font-weight:700; color:var(--ink-faint); }
+
+  .product-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .product-card{
+    background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-md);
+    overflow:hidden; transition:all .25s ease; display:flex; flex-direction:column;
+  }
+  .product-card:hover{ box-shadow:var(--shadow-md); transform:translateY(-4px); border-color:var(--border); }
+  .product-photo{
+    aspect-ratio:1/.9; position:relative; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(155deg,var(--bg-alt),#fff 65%); padding:14px;
+  }
+  .product-photo img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .save-badge{
+    position:absolute; top:12px; left:12px; background:var(--terracotta); color:#fff; font-size:.6rem; font-weight:800;
+    letter-spacing:.02em; padding:5px 9px; border-radius:5px; z-index:2;
+  }
+  .bestseller-badge{
+    position:absolute; top:12px; left:12px; background:linear-gradient(135deg,var(--brown-text),var(--brown-light)); color:#fff;
+    font-size:.6rem; font-weight:800; letter-spacing:.02em; padding:5px 9px; border-radius:5px; z-index:2;
+  }
+  .wishlist-btn{
+    position:absolute; top:12px; right:12px; width:30px; height:30px; border-radius:50%; background:#fff;
+    border:1px solid var(--border-soft); display:flex; align-items:center; justify-content:center; color:var(--ink-faint);
+    font-size:.78rem; transition:all .2s ease; z-index:2;
+  }
+  .wishlist-btn:hover{ color:var(--terracotta); border-color:var(--terracotta); }
+  .play-badge{
+    position:absolute; bottom:10px; right:10px; width:26px; height:26px; border-radius:50%; background:rgba(26,26,26,.82);
+    color:#fff; display:flex; align-items:center; justify-content:center; font-size:.6rem; z-index:2;
+  }
+
+  .product-body{ padding:14px 16px 16px; display:flex; flex-direction:column; gap:5px; flex:1; }
+  .product-sku{ font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  .product-body h3{ font-size:.9rem; font-weight:700; margin:0; color:var(--brown-text); line-height:1.3; }
+  .swatch-row{ display:flex; gap:5px; margin:2px 0; }
+  .swatch{ width:13px; height:13px; border-radius:50%; border:1px solid rgba(0,0,0,.15); display:inline-block; }
+  .product-spec{ font-size:.7rem; color:var(--ink-soft); line-height:1.4; margin:0; }
+  .product-spec strong{ color:var(--text-brown); font-weight:700; }
+  .rating-row{ display:flex; align-items:center; gap:6px; margin:2px 0; }
+  .rating-row .stars{ color:var(--star); font-size:.72rem; letter-spacing:1px; }
+  .rating-row span{ font-size:.72rem; color:var(--ink-faint); font-weight:600; }
+  .ship-tag{ display:flex; align-items:center; gap:5px; font-size:.68rem; color:var(--sage); font-weight:700; }
+
+  .price-row{ display:flex; align-items:baseline; gap:8px; margin-top:2px; }
+  .price-now{ font-size:1.05rem; font-weight:800; color:var(--brown-text); }
+  .price-was{ font-size:.76rem; color:var(--ink-faint); text-decoration:line-through; }
+
+  .product-footer{ margin-top:auto; padding-top:10px; }
+  .add-cart-btn{
+    display:flex; align-items:center; justify-content:center; gap:7px; background:var(--brown-text); color:#fff;
+    border:2px solid var(--brown-text); border-radius:var(--radius-sm); padding:9px 15px; font-size:.76rem; font-weight:700;
+    width:100%; transition:all .2s ease;
+  }
+  .add-cart-btn:hover{ background:transparent; color:var(--brown-text); }
+
+  /* ============ SEO CONTENT ============ */
+  .seo-content{ padding:56px 0; background:var(--bg-alt); border-top:1px solid var(--border-soft); border-bottom:1px solid var(--border-soft); margin-top:20px; }
+  .seo-content .inner{ max-width:none; }
+  .seo-content h2{ margin:0 0 22px; }
+  .seo-content .col-text{ column-count:2; column-gap:56px; }
+  .seo-content .col-text p{ break-inside:avoid; font-size:.95rem; color:var(--ink-soft); margin:0 0 18px; line-height:1.75; }
+
+  /* ============ FAQ ============ */
+  .faq{ padding:60px 0 70px; }
+  .faq .section-head{ text-align:center; margin:0 0 36px; }
+  .faq .eyebrow{
+    display:inline-flex; align-items:center; gap:8px; font-size:.72rem; font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--brown-text);
+  }
+  .faq .eyebrow::before{ content:''; width:18px; height:2px; background:var(--brown-light); display:inline-block; }
+  .faq h2{ margin:12px auto 0; text-align:center; }
+  .faq-list{ max-width:none; display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .faq-item{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:2px 20px; align-self:start; }
+  .faq-item summary{
+    list-style:none; display:flex; align-items:center; justify-content:space-between; padding:17px 0; cursor:pointer;
+    font-size:.9rem; font-weight:700; color:var(--brown-text);
+  }
+  .faq-item summary::-webkit-details-marker{ display:none; }
+  .faq-item summary i{ color:var(--brown-text); font-size:.75rem; transition:transform .2s ease; flex-shrink:0; margin-left:16px; }
+  .faq-item[open] summary i{ transform:rotate(45deg); }
+  .faq-item .faq-answer{ font-size:.84rem; color:var(--ink-soft); line-height:1.65; padding:0 0 20px; margin:0; }
+
+  /* ============ CTA BAND — gradient matches Sustainability.jsx's
+     .unique-wellbeing-cta exactly (135deg, #8b5e3c -> #a67853). ============ */
+  .cta-band{
+    margin:0 auto 70px; max-width:1320px; width:calc(100% - 64px);
+    background:linear-gradient(135deg,#8b5e3c 0%,#a67853 100%);
+    border-radius:var(--radius-lg); padding:48px 50px; display:flex; align-items:center; justify-content:space-between;
+    gap:26px; flex-wrap:wrap; box-shadow:0 20px 60px rgba(139,94,60,.35);
+  }
+  .cta-copy h2{ color:var(--cream); font-size:1.5rem; font-weight:700; margin:0 0 8px; max-width:420px; -webkit-text-fill-color:var(--cream); background:none; }
+  .cta-copy p{ color:rgba(255,248,236,.8); font-size:.88rem; margin:0; max-width:420px; }
+  .cta-actions{ display:flex; gap:12px; flex-wrap:wrap; }
+  .btn{ display:inline-flex; align-items:center; gap:9px; padding:13px 24px; border-radius:100px; font-weight:700; font-size:.83rem; border:2px solid transparent; transition:all .2s ease; }
+  .btn-cream{ background:var(--cream); color:var(--brown-text); border-color:var(--cream); }
+  .btn-cream:hover{ background:transparent; color:var(--cream); border-color:var(--cream); }
+  .btn-ghost-light{ background:transparent; border-color:rgba(251,243,228,.4); color:var(--cream); }
+  .btn-ghost-light:hover{ background:rgba(251,243,228,.1); border-color:var(--cream); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width:1200px){ .product-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:1080px){
+    .layout{ grid-template-columns:1fr; }
+    .layout aside{ position:static; }
+  }
+  @media (max-width:900px){
+    .faq-list{ grid-template-columns:1fr; }
+    .product-grid{ grid-template-columns:repeat(2,1fr); }
+  }
+  @media (max-width:768px){
+    .wrap,.body-header-inner{ padding-left:20px; padding-right:20px; }
+    .search-shell{ display:none; }
+    .product-grid{ grid-template-columns:1fr 1fr; gap:14px; }
+    .cta-band{ padding:34px 24px; width:calc(100% - 40px); }
+    .site-heading{ font-size:1.5rem; }
+    .page-head h1{ font-size:1.8rem; }
+    .seo-content .col-text{ column-count:1; }
+  }
+  @media (max-width:480px){ .product-grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header class="body-header">
+  <div class="body-header-inner">
+    <div class="body-header-title">
+      <i class="fa-solid fa-fire"></i>
+      <span>SAWO Sauna Accessories</span>
+    </div>
+    <div class="body-header-actions">
+      <label class="search-shell">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Search accessories or code">
+      </label>
+      <button class="icon-btn" aria-label="Account"><i class="fa-regular fa-user"></i></button>
+      <button class="icon-btn" aria-label="Cart">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span class="cart-badge">3</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap page-head">
+  <div class="breadcrumb">
+    <a href="#">Home</a><i class="fa-solid fa-chevron-right"></i>Sauna Accessories
+  </div>
+  <h1 class="site-heading">Sauna Accessories</h1>
+  <p>Pails, ladles, lighting, doors, benches and every finishing touch for a genuine Finnish sauna — matched by wood finish and fit-checked against the SAWO range you already own.</p>
+</div>
+
+<div class="wrap layout">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside>
+    <div class="concierge">
+      <h4>Need a Hand?</h4>
+      <p>Not sure which finish or size fits your sauna? Our accessories team can match it in minutes.</p>
+      <div class="concierge-links">
+        <a href="#"><i class="fa-solid fa-headset"></i> Talk to an Accessories Specialist <i class="fa-solid fa-chevron-right"></i></a>
+        <a href="#"><i class="fa-solid fa-magnifying-glass"></i> Find My Compatible Part <i class="fa-solid fa-chevron-right"></i></a>
+        <a href="#"><i class="fa-solid fa-shield-halved"></i> Warranty &amp; Returns <i class="fa-solid fa-chevron-right"></i></a>
+        <a href="#"><i class="fa-solid fa-book"></i> Installation Guides <i class="fa-solid fa-chevron-right"></i></a>
+      </div>
+      <div class="concierge-trust">
+        <div class="stars">★★★★★</div>
+        <p><strong>4.9 out of 5</strong> · based on 2,480 verified reviews</p>
+        <a class="btn-block-outline" href="#">Read Reviews</a>
+      </div>
+    </div>
+
+    <div class="filters">
+      <details class="filter-group" open>
+        <summary>Shop by Category <i class="fa-solid fa-chevron-down"></i></summary>
+        <div class="filter-body" id="catFilterList"></div>
+      </details>
+
+      <details class="filter-group">
+        <summary>Wood Finish <i class="fa-solid fa-chevron-down"></i></summary>
+        <div class="filter-body">
+          <label class="filter-check"><input type="checkbox"> Cedar</label>
+          <label class="filter-check"><input type="checkbox"> Aspen</label>
+          <label class="filter-check"><input type="checkbox"> Hemlock</label>
+          <label class="filter-check"><input type="checkbox"> Black</label>
+          <label class="filter-check"><input type="checkbox"> White</label>
+        </div>
+      </details>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div>
+    <div class="results-bar">
+      <span class="results-count"><strong id="totalCount">0</strong> products across <strong id="totalCats">0</strong> categories</span>
+      <div class="sort-select">
+        Sort
+        <select><option>Recommended</option><option>Newest</option><option>Price: Low to High</option><option>Price: High to Low</option><option>Best Rated</option></select>
+      </div>
+    </div>
+
+    <div id="catalog"></div>
+  </div>
+</div>
+
+<!-- ============ SEO CONTENT ============ -->
+<section class="seo-content">
+  <div class="wrap inner">
+    <h2 class="site-heading">Finishing a Sauna the Right Way</h2>
+    <div class="col-text">
+      <p>The accessories around a sauna heater are what turn a hot room into an authentic Finnish sauna experience — the pail and ladle for löyly, the backrest that makes a long session comfortable, the lighting that sets the mood. Every accessory here is listed with its real size, capacity and wood finish, so you can match it to the rest of your cabin without guesswork.</p>
+      <p>Wood finish matters as much as fit. Cedar, Aspen and Hemlock each weather differently in high heat and humidity, and mixing finishes unintentionally is the most common regret we hear from customers finishing a build. If you're matching an existing SAWO room, the finish codes on this page mirror the ones used across our heaters and panelling.</p>
+      <p>We stock both premium wooden pieces and stainless-steel or metal alternatives, so you can choose based on maintenance and budget without compromising on durability. Every listing includes its product code, so you can cross-reference before you order rather than after.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="faq">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Common Questions</span>
+      <h2 class="site-heading">Frequently Asked Questions</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>How do I match the wood finish to my existing sauna? <i class="fa-solid fa-plus"></i></summary>
+        <p class="faq-answer">Check the finish code on your heater or panelling data plate — Cedar, Aspen and Hemlock are used consistently across our pails, ladles, backrests and doors, so matching the code keeps everything visually consistent.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I mix wood finishes in one sauna? <i class="fa-solid fa-plus"></i></summary>
+        <p class="faq-answer">You can, and many customers do for contrast pieces like a Black ladle against Cedar panelling — it's a style choice, not a fit issue, since all finishes are dimensionally identical within a product line.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Are the doors pre-hung or slab only? <i class="fa-solid fa-plus"></i></summary>
+        <p class="faq-answer">Each door listing shows both its opening size and frame size — order against your rough opening, and confirm with our team if you're retrofitting into an existing frame.</p>
+      </details>
+      <details class="faq-item">
+        <summary>How long do wooden accessories last in a sauna? <i class="fa-solid fa-plus"></i></summary>
+        <p class="faq-answer">With regular use and occasional oiling, most wooden pieces last many years. High humidity and mineral buildup from löyly water can dull the finish over time, so periodic light sanding and re-oiling keeps them looking new.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you offer a warranty on accessories? <i class="fa-solid fa-plus"></i></summary>
+        <p class="faq-answer">Yes, every accessory sold through SAWO carries a minimum 12-month warranty against manufacturing defects.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I return an accessory if the finish doesn't match? <i class="fa-solid fa-plus"></i></summary>
+        <p class="faq-answer">Unused items in original packaging can be returned within 30 days. We'd recommend confirming your finish code with our support team before ordering to avoid the round trip entirely.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CTA BAND ============ -->
+<div class="cta-band">
+  <div class="cta-copy">
+    <h2>Need help finishing your sauna?</h2>
+    <p>Send us your heater or room model and we'll confirm the matching accessories before you order.</p>
+  </div>
+  <div class="cta-actions">
+    <button class="btn btn-cream">Contact Support</button>
+    <button class="btn btn-ghost-light">Find Your Sauna Model</button>
+  </div>
+</div>
+
+<script src="../REACT_SITE/allaccs-data.js"></script>
+<script>
+(function(){
+  const CATEGORY_ORDER = [
+    ["pails", "Pails", 25, 65],
+    ["ladles", "Ladles", 18, 55],
+    ["pail_shower", "Pail Shower", 60, 95],
+    ["thermometers_and_combined_meters", "Thermometers & Combined Meters", 20, 75],
+    ["clocks_and_timers", "Clocks & Timers", 15, 60],
+    ["sauna_lights", "Sauna Lights", 35, 130],
+    ["headrest_and_backrests", "Headrest & Backrests", 30, 85],
+    ["doors_and_handles", "Doors & Handles", 45, 950],
+    ["benches", "Benches", 120, 460],
+    ["hangers_and_hook_racks", "Hangers & Hook Racks", 15, 45],
+    ["floor_mat_tiles", "Floor Mat Tiles", 30, 95],
+    ["kivistone", "Kivistone", 60, 280],
+    ["ventilations_and_miscellaneous", "Ventilations & Miscellaneous Items", 15, 130],
+    ["accessory_sets", "Accessory Sets", 80, 360],
+  ];
+
+  const SWATCH_COLORS = {
+    cedar: "#7A5A41", aspen: "#B9AFA0", hemlock: "#C9A98A",
+    black: "#1A1A1A", white: "#FFFFFF", "black metal": "#2B2B2B",
+  };
+
+  function stripHtml(s){
+    return String(s || "").replace(/<br\s*\/?>/gi, " ").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  }
+  function rawVariants(p){
+    return Array.isArray(p.variants) && p.variants.length
+      ? p.variants
+      : [{ color: p.option || "", code: p.code || "" }];
+  }
+  function buildSpecLines(p){
+    const rows = [];
+    const add = (label, val) => { if (val) rows.push([label, stripHtml(val)]); };
+    add("Capacity", p.capacity);
+    add("Size", p.size_display || p.size);
+    add("Opening", p.opening_size);
+    add("Frame", p.frame_size);
+    add("Material", p.material);
+    return rows.slice(0, 2); // keep the card compact — matches ecom.html's single compat line
+  }
+
+  // Deterministic pseudo-random generator seeded from the product's own
+  // code/name, so prices/ratings stay stable across reloads instead of
+  // reshuffling every refresh (these are placeholder figures, per the ask —
+  // real data will replace this generator later).
+  function hashStr(s){
+    let h = 0;
+    for (let i = 0; i < s.length; i++){ h = (h << 5) - h + s.charCodeAt(i); h |= 0; }
+    return Math.abs(h);
+  }
+  function rand01(seed){ return (hashStr(seed) % 10000) / 10000; }
+
+  function niceAmount(x){ return Math.max(4.99, Math.floor(x) + 0.99); }
+
+  function pricingFor(p, seed, min, max){
+    const r = rand01(seed + "|price");
+    const now = niceAmount(min + r * (max - min));
+    const discounted = rand01(seed + "|disc") < 0.28;
+    const was = discounted ? niceAmount(now * (1.12 + rand01(seed + "|discamt") * 0.22)) : null;
+    const rating = Math.round((4.2 + rand01(seed + "|rating") * 0.8) * 2) / 2; // nearest .5, 4.2-5.0
+    const reviews = 4 + Math.floor(rand01(seed + "|reviews") * 260);
+    const freeShip = now >= 40 || rand01(seed + "|ship") < 0.35;
+    return { now, was, rating, reviews, freeShip };
+  }
+
+  function starString(rating){
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5;
+    return "★".repeat(full) + (half ? "☆" : "") + "".padEnd(5 - full - (half ? 1 : 0), "✩");
+  }
+
+  function swatchDot(color){
+    const hex = SWATCH_COLORS[String(color).toLowerCase()] || "#AF8564";
+    return '<span class="swatch" style="background:' + hex + '" title="' + color + '"></span>';
+  }
+
+  function renderCard(p, catKey, min, max){
+    const variants = rawVariants(p);
+    const codes = variants.map(v => v.code).filter(Boolean);
+    const primaryCode = codes[0] || "";
+    const colors = [...new Set(variants.map(v => v.color).filter(Boolean))];
+    const specs = buildSpecLines(p);
+    const name = stripHtml(p.name_display || p.name);
+    const seed = catKey + "|" + (primaryCode || name);
+    const price = pricingFor(p, seed, min, max);
+    const save = price.was ? (price.was - price.now).toFixed(2) : null;
+
+    return (
+      '<div class="product-card">' +
+        '<div class="product-photo">' +
+          (p.bestSeller ? '<span class="bestseller-badge">Best Seller</span>' : (save ? '<span class="save-badge">SAVE $' + save + '</span>' : '')) +
+          '<button class="wishlist-btn" aria-label="Wishlist"><i class="fa-regular fa-heart"></i></button>' +
+          '<img src="' + p.image + '" alt="' + name + '" loading="lazy">' +
+          (p.video ? '<span class="play-badge"><i class="fa-solid fa-play"></i></span>' : '') +
+        '</div>' +
+        '<div class="product-body">' +
+          (primaryCode ? '<span class="product-sku">CODE ' + primaryCode + '</span>' : '') +
+          '<h3>' + name + '</h3>' +
+          (colors.length ? '<div class="swatch-row">' + colors.map(swatchDot).join('') + '</div>' : '') +
+          specs.map(([label, val]) => '<p class="product-spec"><strong>' + label + ':</strong> ' + val + '</p>').join('') +
+          '<div class="rating-row"><span class="stars">' + starString(price.rating) + '</span><span>(' + price.reviews + ' reviews)</span></div>' +
+          (price.freeShip ? '<span class="ship-tag"><i class="fa-solid fa-truck-fast"></i> Free Shipping</span>' : '') +
+          '<div class="price-row"><span class="price-now">$' + price.now.toFixed(2) + '</span>' + (price.was ? '<span class="price-was">$' + price.was.toFixed(2) + '</span>' : '') + '</div>' +
+        '</div>' +
+        '<div class="product-footer" style="padding:0 16px 16px;">' +
+          '<button class="add-cart-btn"><i class="fa-solid fa-bag-shopping"></i> Add to Cart</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  const catFilterList = document.getElementById("catFilterList");
+  const catalogEl = document.getElementById("catalog");
+  const filterLinks = [];
+  const sections = [];
+  let totalCount = 0;
+
+  CATEGORY_ORDER.forEach(([key, title, min, max]) => {
+    const items = accessoriesData[key];
+    if (!Array.isArray(items) || !items.length) return;
+    totalCount += items.length;
+
+    filterLinks.push(
+      '<a class="cat-link" href="#' + key + '" data-key="' + key + '">' +
+        '<span>' + title + '</span><span class="count">' + items.length + '</span>' +
+      '</a>'
+    );
+
+    sections.push(
+      '<section class="cat-section" id="' + key + '">' +
+        '<div class="cat-section-head">' +
+          '<h2 class="site-heading">' + title + '</h2>' +
+          '<span class="count">' + items.length + ' item' + (items.length === 1 ? '' : 's') + '</span>' +
+        '</div>' +
+        '<div class="product-grid">' + items.map(p => renderCard(p, key, min, max)).join('') + '</div>' +
+      '</section>'
+    );
+  });
+
+  catFilterList.innerHTML = filterLinks.join('');
+  catalogEl.innerHTML = sections.join('');
+  document.getElementById("totalCount").textContent = totalCount;
+  document.getElementById("totalCats").textContent = CATEGORY_ORDER.filter(([key]) => Array.isArray(accessoriesData[key]) && accessoriesData[key].length).length;
+
+  const links = [...catFilterList.querySelectorAll('a')];
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + entry.target.id));
+    });
+  }, { rootMargin: '-90px 0px -70% 0px' });
+  document.querySelectorAll('.cat-section').forEach(s => io.observe(s));
+})();
+</script>
+
+</body>
+</html>
